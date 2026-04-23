@@ -1,5 +1,6 @@
 /**
  * ============================================================
+
  *  DOCUMENTATION TP3 — Approche IA assistée
  * ============================================================
  *
@@ -24,6 +25,22 @@
  * Corrections humaines :
  *   - Ajout du constructeur avec solde initial
  *   - Arrondi à 3 décimales (standard DT)
+=======
+ *  DOCUMENTATION TP1 — Approche hybride
+ * ============================================================
+ *  ÉTAPE 1 — Squelette AGL (déterministe) :
+ *    Pattern : champs privés → constructeurs (vide + complet)
+ *    → méthodes métier (signatures) → getters/setters
+ *    Nommage français : seConnecter(), seDeconnecter(),
+ *    debiterSolde(), crediterSolde(), afficherDetails()
+ *
+ *  ÉTAPE 2 — Implémentation IA assistée :
+ *    Prompt utilisé :
+ *      "Ajoute un champ solde en DT à la classe User avec
+ *       debiterSolde(double) et crediterSolde(double).
+ *       Valider montant positif et solde non négatif."
+ *    Corrections humaines : arrondi 3 décimales (standard DT)
+>>>>>>> feature/posts
  * ============================================================
  */
 public class User {
@@ -34,7 +51,10 @@ public class User {
     private String email;
     private String password;
     private String role;
+
     private double solde; // en DT (Dinar Tunisien)
+
+    private double solde;
 
     // --- Constructeur vide ---
     public User() {
@@ -59,6 +79,7 @@ public class User {
     }
 
     // ============================================================
+
     //  MÉTHODES MÉTIER — Logique réelle
     // ============================================================
 
@@ -103,16 +124,52 @@ public class User {
     /**
      * Afficher le profil complet du membre.
      */
+
+    //  MÉTHODES MÉTIER
+    // ============================================================
+
+    public void seConnecter() {
+        if (username == null || email == null)
+            throw new IllegalStateException("Compte invalide.");
+        System.out.println(username + " connecté.");
+    }
+
+    public void seDeconnecter() {
+        System.out.println(username + " déconnecté.");
+    }
+
+    public void debiterSolde(double montant) {
+        if (montant <= 0)
+            throw new IllegalArgumentException("Montant invalide.");
+        if (solde < montant)
+            throw new IllegalStateException("Solde insuffisant : " + solde + " DT.");
+        solde = Math.round((solde - montant) * 1000.0) / 1000.0;
+    }
+
+    public void crediterSolde(double montant) {
+        if (montant <= 0)
+            throw new IllegalArgumentException("Montant invalide.");
+        solde = Math.round((solde + montant) * 1000.0) / 1000.0;
+    }
+
+
     public void afficherDetails() {
         System.out.println("=== Profil Membre ===");
         System.out.println("ID       : " + id);
         System.out.println("Username : " + username);
         System.out.println("Email    : " + email);
+
         System.out.println("Rôle     : " + role);
         System.out.println("Solde    : " + solde + " DT");
     }
 
     // --- toString ---
+
+        System.out.println("Role     : " + role);
+        System.out.println("Solde    : " + solde + " DT");
+    }
+
+
     @Override
     public String toString() {
         return "User#" + id + " [" + username + "] (" + role + ") | solde=" + solde + " DT";
