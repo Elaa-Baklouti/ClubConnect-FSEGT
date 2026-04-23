@@ -1,6 +1,30 @@
 /**
- * Représente un membre inscrit sur ClubConnect.
- * Prompt IA utilisé : "génère constructeur vide, complet, getters/setters et toString pour cette classe"
+ * ============================================================
+ *  DOCUMENTATION TP3 — Approche IA assistée
+ * ============================================================
+ *
+ * MÉTHODE : debiterSolde() / crediterSolde()
+ * --------------------------------
+ * Prompt utilisé :
+ *   "Ajoute un champ solde en DT (Dinar Tunisien) à la classe User avec
+ *    les méthodes debiterSolde(double montant) et crediterSolde(double montant).
+ *    Valider que le montant est positif et que le solde ne devient pas négatif."
+ *
+ * Code généré par l'IA :
+ *   public void debiterSolde(double montant) {
+ *       if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
+ *       if (solde < montant) throw new IllegalStateException("Solde insuffisant.");
+ *       solde -= montant;
+ *   }
+ *   public void crediterSolde(double montant) {
+ *       if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
+ *       solde += montant;
+ *   }
+ *
+ * Corrections humaines :
+ *   - Ajout du constructeur avec solde initial
+ *   - Arrondi à 3 décimales (standard DT)
+ * ============================================================
  */
 public class User {
 
@@ -10,10 +34,12 @@ public class User {
     private String email;
     private String password;
     private String role;
+    private double solde; // en DT (Dinar Tunisien)
 
     // --- Constructeur vide ---
     public User() {
-        this.role = "user";
+        this.role  = "user";
+        this.solde = 0.0;
     }
 
     // --- Constructeur complet ---
@@ -23,33 +49,73 @@ public class User {
         this.email    = email;
         this.password = password;
         this.role     = "user";
+        this.solde    = 0.0;
     }
 
-    // --- Méthodes métier ---
+    // --- Constructeur avec solde initial ---
+    public User(int id, String username, String email, String password, double soldeInitial) {
+        this(id, username, email, password);
+        this.solde = soldeInitial;
+    }
 
-    /** CF-1 : Connexion du membre */
+    // ============================================================
+    //  MÉTHODES MÉTIER — Logique réelle
+    // ============================================================
+
+    /**
+     * CF-1 : Connexion — vérifie que le compte est valide.
+     */
     public void seConnecter() {
-        System.out.println(username + " s'est connecté.");
+        if (username == null || email == null)
+            throw new IllegalStateException("Compte invalide.");
+        Session.login(this);
     }
 
-    /** CF-2 : Déconnexion du membre */
+    /**
+     * CF-2 : Déconnexion.
+     */
     public void seDeconnecter() {
-        System.out.println(username + " s'est déconnecté.");
+        Session.logout();
     }
 
-    /** Afficher le profil du membre */
+    /**
+     * Débiter le solde (paiement frais d'inscription événement).
+     * Montant en DT.
+     */
+    public void debiterSolde(double montant) {
+        if (montant <= 0)
+            throw new IllegalArgumentException("Le montant à débiter doit être positif.");
+        if (solde < montant)
+            throw new IllegalStateException("Solde insuffisant. Solde actuel : " + solde + " DT.");
+        solde = Math.round((solde - montant) * 1000.0) / 1000.0;
+    }
+
+    /**
+     * Créditer le solde (remboursement annulation événement).
+     * Montant en DT.
+     */
+    public void crediterSolde(double montant) {
+        if (montant <= 0)
+            throw new IllegalArgumentException("Le montant à créditer doit être positif.");
+        solde = Math.round((solde + montant) * 1000.0) / 1000.0;
+    }
+
+    /**
+     * Afficher le profil complet du membre.
+     */
     public void afficherDetails() {
         System.out.println("=== Profil Membre ===");
         System.out.println("ID       : " + id);
         System.out.println("Username : " + username);
         System.out.println("Email    : " + email);
         System.out.println("Rôle     : " + role);
+        System.out.println("Solde    : " + solde + " DT");
     }
 
     // --- toString ---
     @Override
     public String toString() {
-        return "User#" + id + " [" + username + "] (" + role + ")";
+        return "User#" + id + " [" + username + "] (" + role + ") | solde=" + solde + " DT";
     }
 
     // --- Getters / Setters ---
@@ -67,4 +133,7 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public double getSolde() { return solde; }
+    public void setSolde(double solde) { this.solde = solde; }
 }

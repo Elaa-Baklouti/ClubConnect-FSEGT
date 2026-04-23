@@ -14,6 +14,6 @@ public class Session {
     }
 
     static boolean isAdmin() {
-        return currentUser != null && "admin".equals(currentUser.role);
+        return currentUser != null && "admin".equals(currentUser.getRole());
     }
 }
