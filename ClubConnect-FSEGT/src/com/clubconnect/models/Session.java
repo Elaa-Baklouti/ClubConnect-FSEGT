@@ -1,83 +1,136 @@
 package com.clubconnect.models;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * ============================================================
- *  DOCUMENTATION TP1 — Approche hybride
+ *  DOCUMENTATION TP3 — Approche IA assistee
  * ============================================================
  *
- *  ETAPE 1 — Squelette AGL (deterministe) :
- *    Classe utilitaire de gestion de la session courante.
- *    Package : com.clubconnect.models
- *    Pattern : champ statique prive -> methodes statiques metier
- *    Nommage francais : estConnecte(), estAdmin(),
- *    obtenirUtilisateurCourant(), afficherDetails()
+ *  METHODE : login() / logout()
+ *  ----------------------------
+ *  Prompt utilise :
+ *    "Cree une classe Session Java avec un champ statique prive
+ *     currentUser de type User. Ajoute login(User), logout(),
+ *     isLoggedIn() et isAdmin(). Ajoute aussi un timestamp
+ *     d'ouverture de session et une methode getDureeSession()
+ *     qui retourne le nombre de minutes depuis la connexion."
  *
- *  ETAPE 2 — Implementation IA assistee :
- *    Prompt utilise :
- *      "Cree une classe Session Java avec un champ statique
- *       currentUser de type User. Ajoute les methodes statiques
- *       login(User), logout(), isLoggedIn() et isAdmin().
- *       isAdmin() retourne true si le role de l'utilisateur
- *       courant est 'admin'."
+ *  Code genere par l'IA :
+ *    private static User currentUser;
+ *    private static LocalDateTime debutSession;
  *
- *    Code genere par l'IA :
- *      static void login(User user)  { currentUser = user; }
- *      static void logout()          { currentUser = null; }
- *      static boolean isLoggedIn()   { return currentUser != null; }
- *      static boolean isAdmin()      { return currentUser != null
- *                                        && "admin".equals(currentUser.getRole()); }
+ *    public static void login(User user) {
+ *        currentUser  = user;
+ *        debutSession = LocalDateTime.now();
+ *    }
+ *    public static void logout() {
+ *        currentUser  = null;
+ *        debutSession = null;
+ *    }
+ *    public static long getDureeSession() {
+ *        if (debutSession == null) return 0;
+ *        return Duration.between(debutSession, LocalDateTime.now()).toMinutes();
+ *    }
  *
- *    Corrections humaines :
- *      - Champ rendu private (acces via getter)
- *      - Ajout de obtenirUtilisateurCourant()
- *      - Ajout de afficherDetails() pour affichage console
+ *  Code final apres corrections humaines :
+ *    - Champ renomme utilisateurCourant (nommage francais)
+ *    - Ajout de obtenirUtilisateurCourant() pour acces externe
+ *    - Ajout de estConnecte() et estAdmin() en nommage francais
+ *    - afficherDetails() formate la date avec DateTimeFormatter
+ *    - getDureeSession() retourne les secondes (plus precis pour les tests)
+ *
  * ============================================================
  */
 public class Session {
 
     // ============================================================
-    //  ETAPE 1 — Champ prive (squelette AGL)
+    //  Champs prives
     // ============================================================
 
-    private static User utilisateurCourant;
+    private static User          utilisateurCourant;
+    private static LocalDateTime debutSession;
 
     // ============================================================
-    //  ETAPE 2 — Methodes metier (implementation)
+    //  Methodes metier — logique reelle
     // ============================================================
 
-    /** Ouvrir une session pour l'utilisateur donne. */
+    /**
+     * Ouvrir une session pour l'utilisateur donne.
+     * Enregistre le timestamp de debut de session.
+     *
+     * @param user Utilisateur a connecter (non null)
+     */
     public static void login(User user) {
+        if (user == null)
+            throw new IllegalArgumentException("Impossible d'ouvrir une session pour un utilisateur null.");
         utilisateurCourant = user;
+        debutSession       = LocalDateTime.now();
     }
 
-    /** Fermer la session courante. */
+    /**
+     * Fermer la session courante.
+     * Remet utilisateurCourant et debutSession a null.
+     */
     public static void logout() {
         utilisateurCourant = null;
+        debutSession       = null;
     }
 
-    /** Verifie si un utilisateur est connecte. */
+    /**
+     * Verifie si un utilisateur est actuellement connecte.
+     *
+     * @return true si une session est active
+     */
     public static boolean estConnecte() {
         return utilisateurCourant != null;
     }
 
-    /** Verifie si l'utilisateur courant est administrateur. */
+    /**
+     * Verifie si l'utilisateur courant a le role "admin".
+     * Interaction avec User : appel de getRole()
+     *
+     * @return true si admin connecte
+     */
     public static boolean estAdmin() {
         return utilisateurCourant != null
             && "admin".equalsIgnoreCase(utilisateurCourant.getRole());
     }
 
-    /** Retourne l'utilisateur connecte, ou null si aucune session. */
+    /**
+     * Retourne l'utilisateur actuellement connecte.
+     *
+     * @return User connecte, ou null si aucune session
+     */
     public static User obtenirUtilisateurCourant() {
         return utilisateurCourant;
     }
 
-    /** Afficher l'etat de la session en console. */
+    /**
+     * Retourne la duree de la session courante en secondes.
+     * Retourne 0 si aucune session active.
+     *
+     * @return duree en secondes
+     */
+    public static long getDureeSession() {
+        if (debutSession == null) return 0;
+        return java.time.Duration.between(debutSession, LocalDateTime.now()).getSeconds();
+    }
+
+    /**
+     * Afficher l'etat complet de la session en console.
+     */
     public static void afficherDetails() {
         if (utilisateurCourant == null) {
             System.out.println("  Session : aucune session active.");
         } else {
-            System.out.println("  Session active : " + utilisateurCourant.getUsername()
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            System.out.println("  Session active   : " + utilisateurCourant.getUsername()
                 + " | role=" + utilisateurCourant.getRole());
+            System.out.println("  Debut session    : "
+                + (debutSession != null ? debutSession.format(fmt) : "N/A"));
+            System.out.println("  Duree session    : " + getDureeSession() + " sec");
         }
     }
 
