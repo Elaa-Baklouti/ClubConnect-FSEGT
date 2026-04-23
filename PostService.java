@@ -1,5 +1,4 @@
-public class PostService {
-    import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PostService {
@@ -38,6 +37,4 @@ public class PostService {
             return false;
         });
     }
-}
-
 }
