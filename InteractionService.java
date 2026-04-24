@@ -6,7 +6,7 @@ public class InteractionService {
             throw new IllegalStateException("Connexion requise.");
         for (Post p : PostService.posts) {
             if (p.id == postId) {
-                p.comments.add(Session.currentUser.username + " : " + content);
+                p.comments.add(Session.currentUser.getUsername() + " : " + content);
                 System.out.println("Commentaire ajouté sur Post#" + postId);
                 return;
             }
@@ -21,7 +21,7 @@ public class InteractionService {
         for (Post p : PostService.posts) {
             if (p.id == postId) {
                 p.likes++;
-                System.out.println(Session.currentUser.username
+                System.out.println(Session.currentUser.getUsername()
                     + " a liké Post#" + postId + " (" + p.likes + " likes)");
                 return;
             }

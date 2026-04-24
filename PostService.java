@@ -1,5 +1,4 @@
-public class PostService {
-    import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PostService {
@@ -30,7 +29,7 @@ public class PostService {
             throw new IllegalStateException("Connexion requise.");
         posts.removeIf(p -> {
             if (p.id == id) {
-                if (p.author.id != Session.currentUser.id && !Session.isAdmin())
+                if (p.author.getId() != Session.currentUser.getId() && !Session.isAdmin())
                     throw new IllegalStateException("Permission refusée.");
                 System.out.println("Post #" + id + " supprimé.");
                 return true;
@@ -38,6 +37,4 @@ public class PostService {
             return false;
         });
     }
-}
-
 }

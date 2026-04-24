@@ -16,7 +16,7 @@ public class Post {
     }
 
     public String toString() {
-        return "Post#" + id + " [" + title + "] par " + author.username
+        return "Post#" + id + " [" + title + "] par " + author.getUsername()
              + " | likes=" + likes + " | comments=" + comments.size();
     }
 }
