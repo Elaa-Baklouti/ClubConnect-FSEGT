@@ -1,5 +1,26 @@
-package com.clubconnect.models.authentification;
+package com.clubconnect.models;
 
+/**
+ * ============================================================
+ *  DOCUMENTATION TP3 — Approche IA assistee
+ * ============================================================
+ *  METHODE : debiterSolde() / crediterSolde()
+ *  Prompt utilise :
+ *    "Ajoute un champ solde en DT a la classe User avec
+ *     debiterSolde(double montant) et crediterSolde(double montant).
+ *     Valider que le montant est positif et que le solde ne devient
+ *     pas negatif."
+ *  Code genere par l'IA :
+ *    public void debiterSolde(double montant) {
+ *        if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
+ *        if (solde < montant) throw new IllegalStateException("Solde insuffisant.");
+ *        solde -= montant;
+ *    }
+ *  Corrections humaines :
+ *    - Ajout constructeur avec solde initial
+ *    - Arrondi 3 decimales (standard DT)
+ * ============================================================
+ */
 public class User {
 
     private int id;
@@ -7,20 +28,14 @@ public class User {
     private String email;
     private String password;
     private String role;
-    private double solde; // en DT
+    private double solde;
 
-    public User() {
-        this.role  = "user";
-        this.solde = 0.0;
-    }
+    public User() { this.role = "user"; this.solde = 0.0; }
 
     public User(int id, String username, String email, String password) {
-        this.id       = id;
-        this.username = username;
-        this.email    = email;
-        this.password = password;
-        this.role     = "user";
-        this.solde    = 0.0;
+        this.id = id; this.username = username;
+        this.email = email; this.password = password;
+        this.role = "user"; this.solde = 0.0;
     }
 
     public User(int id, String username, String email, String password, double soldeInitial) {
@@ -34,21 +49,16 @@ public class User {
         System.out.println(username + " connecte.");
     }
 
-    public void seDeconnecter() {
-        System.out.println(username + " deconnecte.");
-    }
+    public void seDeconnecter() { System.out.println(username + " deconnecte."); }
 
     public void debiterSolde(double montant) {
-        if (montant <= 0)
-            throw new IllegalArgumentException("Montant invalide.");
-        if (solde < montant)
-            throw new IllegalStateException("Solde insuffisant : " + solde + " DT.");
+        if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
+        if (solde < montant) throw new IllegalStateException("Solde insuffisant : " + solde + " DT.");
         solde = Math.round((solde - montant) * 1000.0) / 1000.0;
     }
 
     public void crediterSolde(double montant) {
-        if (montant <= 0)
-            throw new IllegalArgumentException("Montant invalide.");
+        if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
         solde = Math.round((solde + montant) * 1000.0) / 1000.0;
     }
 

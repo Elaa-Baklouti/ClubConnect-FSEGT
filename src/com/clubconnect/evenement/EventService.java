@@ -1,6 +1,7 @@
-package com.clubconnect.models.evenement;
+package com.clubconnect.evenement;
 
-import com.clubconnect.models.authentification.User;
+import com.clubconnect.models.Event;
+import com.clubconnect.models.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ public class EventService {
 
     public EventService() {
         this.evenements = new ArrayList<>();
-        this.nextId     = 1;
+        this.nextId = 1;
     }
 
     public Event creerEvenement(String titre, String lieu, String date,
@@ -55,7 +56,6 @@ public class EventService {
         throw new IllegalArgumentException("Evenement #" + id + " introuvable.");
     }
 
-    @Override public String toString() { return "EventService | evenements=" + evenements.size(); }
     public List<Event> getEvenements() { return evenements; }
     public void setEvenements(List<Event> evenements) { this.evenements = evenements; }
 }

@@ -1,14 +1,12 @@
 package com.clubconnect.models;
 
-import com.clubconnect.models.authentification.AuthService;
-import com.clubconnect.models.authentification.Session;
-import com.clubconnect.models.authentification.User;
-import com.clubconnect.models.admin.AdminService;
-import com.clubconnect.models.evenement.Event;
-import com.clubconnect.models.evenement.EventService;
-import com.clubconnect.models.gestionpostes.Post;
-import com.clubconnect.models.gestionpostes.PostService;
-import com.clubconnect.models.interaction.InteractionService;
+import com.clubconnect.admin.AdminService;
+import com.clubconnect.authentification.AuthService;
+import com.clubconnect.authentification.Session;
+import com.clubconnect.evenement.EventService;
+import com.clubconnect.gestionpostes.Post;
+import com.clubconnect.gestionpostes.PostService;
+import com.clubconnect.interaction.InteractionService;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +27,10 @@ public class Main {
         AuthService.users.add(carol);
         AuthService.users.add(admin);
 
-        EventService        eventService = new EventService();
-        PostService         postService  = new PostService();
-        InteractionService  interactions = new InteractionService(postService);
-        List<User>          tousLesUsers = new ArrayList<>();
+        EventService       eventService = new EventService();
+        PostService        postService  = new PostService();
+        InteractionService interactions = new InteractionService(postService);
+        List<User>         tousLesUsers = new ArrayList<>();
         tousLesUsers.add(alice); tousLesUsers.add(bob);
         tousLesUsers.add(carol); tousLesUsers.add(admin);
 
@@ -68,10 +66,8 @@ public class Main {
         // ============================================================
         System.out.println("Scenario 3 : Visiteur (sans connexion)");
         System.out.println("---------------------------------------");
-        Post p1 = postService.creerEtPublier("Hackathon FSEGT 2026",
-                "Rejoignez-nous le 10 mai !", alice);
-        Post p2 = postService.creerEtPublier("Atelier Java",
-                "Samedi 15h - Salle B", bob);
+        Post p1 = postService.creerEtPublier("Hackathon FSEGT 2026", "Rejoignez-nous le 10 mai !", alice);
+        Post p2 = postService.creerEtPublier("Atelier Java", "Samedi 15h - Salle B", bob);
         postService.voirPostsPublics();
         System.out.println();
         interactions.voirCommentairesPublics(p1.getId());
@@ -83,7 +79,7 @@ public class Main {
         System.out.println();
 
         // ============================================================
-        // Scenario 4 : Interactions membres sur les posts
+        // Scenario 4 : Interactions membres
         // ============================================================
         System.out.println("Scenario 4 : Interactions membres");
         System.out.println("----------------------------------");
@@ -104,7 +100,7 @@ public class Main {
         Post pDouteux = postService.creerEtPublier("Contenu douteux", "...", bob);
         interactions.signalerPost(pDouteux.getId(), alice, "Inapproprie");
         interactions.signalerPost(pDouteux.getId(), carol, "Spam");
-        User dave = new User(5, "dave", "dave@fsegt.tn", "p", 5.0);
+        User dave = new User(5, "dave", "dave@fsegt.tn", "p123456", 5.0);
         postService.creerEtPublier("Post dave", "test", dave);
         interactions.signalerPost(pDouteux.getId(), dave, "Fausses informations");
         System.out.println("   Post masque automatiquement (3 signalements)");
@@ -127,9 +123,9 @@ public class Main {
         AdminService.afficherDetails();
         System.out.println();
 
-        long totalPublies  = postService.getPosts().stream().filter(Post::isPublie).count();
-        int  totalLikes    = postService.getPosts().stream().mapToInt(Post::getLikes).sum();
-        double revenus     = totalPublies * PostService.FRAIS_PUBLICATION;
+        long totalPublies = postService.getPosts().stream().filter(Post::isPublie).count();
+        int  totalLikes   = postService.getPosts().stream().mapToInt(Post::getLikes).sum();
+        double revenus    = totalPublies * PostService.FRAIS_PUBLICATION;
         System.out.println("- Posts publies   : " + totalPublies);
         System.out.println("- Total likes     : " + totalLikes);
         System.out.println("- Revenus posts   : " + String.format("%.3f", revenus) + " DT");

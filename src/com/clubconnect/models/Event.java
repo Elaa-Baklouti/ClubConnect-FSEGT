@@ -1,6 +1,5 @@
-package com.clubconnect.models.evenement;
+package com.clubconnect.models;
 
-import com.clubconnect.models.authentification.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,27 +12,24 @@ public class Event {
     private User organisateur;
     private List<String> participants;
     private int capaciteMax;
-    private double fraisInscription; // en DT
+    private double fraisInscription;
     private boolean annule;
 
     public Event() {
-        this.participants     = new ArrayList<>();
-        this.capaciteMax      = 50;
+        this.participants = new ArrayList<>();
+        this.capaciteMax = 50;
         this.fraisInscription = 0.0;
-        this.annule           = false;
+        this.annule = false;
     }
 
     public Event(int id, String titre, String lieu, String date,
                  User organisateur, int capaciteMax, double fraisInscription) {
-        this.id               = id;
-        this.titre            = titre;
-        this.lieu             = lieu;
-        this.date             = date;
-        this.organisateur     = organisateur;
-        this.participants     = new ArrayList<>();
-        this.capaciteMax      = capaciteMax;
+        this.id = id; this.titre = titre; this.lieu = lieu; this.date = date;
+        this.organisateur = organisateur;
+        this.participants = new ArrayList<>();
+        this.capaciteMax = capaciteMax;
         this.fraisInscription = fraisInscription;
-        this.annule           = false;
+        this.annule = false;
     }
 
     public Event(int id, String titre, String lieu, String date, User organisateur) {
@@ -80,15 +76,14 @@ public class Event {
 
     public void afficherDetails() {
         System.out.println("=== Details Evenement ===");
-        System.out.println("ID             : " + id);
-        System.out.println("Titre          : " + titre);
-        System.out.println("Lieu           : " + lieu);
-        System.out.println("Date           : " + date);
-        System.out.println("Organisateur   : " + (organisateur != null ? organisateur.getUsername() : "N/A"));
-        System.out.println("Participants   : " + participants.size() + "/" + capaciteMax);
-        System.out.println("Places restant.: " + placesRestantes());
-        System.out.println("Frais          : " + fraisInscription + " DT");
-        System.out.println("Statut         : " + (annule ? "ANNULE" : "Actif"));
+        System.out.println("ID           : " + id);
+        System.out.println("Titre        : " + titre);
+        System.out.println("Lieu         : " + lieu);
+        System.out.println("Date         : " + date);
+        System.out.println("Organisateur : " + (organisateur != null ? organisateur.getUsername() : "N/A"));
+        System.out.println("Participants : " + participants.size() + "/" + capaciteMax);
+        System.out.println("Frais        : " + fraisInscription + " DT");
+        System.out.println("Statut       : " + (annule ? "ANNULE" : "Actif"));
     }
 
     @Override
@@ -109,9 +104,9 @@ public class Event {
     public User getOrganisateur() { return organisateur; }
     public void setOrganisateur(User organisateur) { this.organisateur = organisateur; }
     public List<String> getParticipants() { return participants; }
-    public void setParticipants(List<String> participants) { this.participants = participants; }
+    public void setParticipants(List<String> p) { this.participants = p; }
     public int getCapaciteMax() { return capaciteMax; }
-    public void setCapaciteMax(int capaciteMax) { this.capaciteMax = capaciteMax; }
+    public void setCapaciteMax(int c) { this.capaciteMax = c; }
     public double getFraisInscription() { return fraisInscription; }
     public void setFraisInscription(double f) { this.fraisInscription = f; }
     public boolean isAnnule() { return annule; }

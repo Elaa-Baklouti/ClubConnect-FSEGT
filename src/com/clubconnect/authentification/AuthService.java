@@ -1,5 +1,6 @@
-package com.clubconnect.models.authentification;
+package com.clubconnect.authentification;
 
+import com.clubconnect.models.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,9 +39,6 @@ public class AuthService {
         System.out.println("=== Membres inscrits (" + users.size() + ") ===");
         for (User u : users) System.out.println("  - " + u);
     }
-
-    @Override
-    public String toString() { return "AuthService | membres=" + users.size(); }
 
     public static List<User> getUsers() { return users; }
     public static void setUsers(List<User> u) { users = u; }
