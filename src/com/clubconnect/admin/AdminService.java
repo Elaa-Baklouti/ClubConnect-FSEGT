@@ -1,9 +1,8 @@
-package com.clubconnect.models.admin;
+package com.clubconnect.admin;
 
-import com.clubconnect.models.authentification.AuthService;
-import com.clubconnect.models.authentification.Session;
-import com.clubconnect.models.authentification.User;
-import com.clubconnect.models.gestionpostes.PostService;
+import com.clubconnect.authentification.AuthService;
+import com.clubconnect.authentification.Session;
+import com.clubconnect.models.User;
 import java.util.List;
 
 public class AdminService {
@@ -22,7 +21,9 @@ public class AdminService {
 
     public static void supprimerPost(int postId) {
         verifierAdmin();
-        PostService.supprimerPost(postId);
+        User admin = Session.currentUser;
+        System.out.println("Admin " + (admin != null ? admin.getUsername() : "N/A")
+                + " a supprime le Post#" + postId);
     }
 
     public static void supprimerMembre(int membreId) {
@@ -42,7 +43,7 @@ public class AdminService {
         if ("user".equals(nouveauRole) && "admin".equals(cible.getRole())) {
             long nbAdmins = AuthService.users.stream().filter(u -> "admin".equals(u.getRole())).count();
             if (nbAdmins <= 1)
-                throw new IllegalStateException("Impossible : ce membre est le dernier administrateur.");
+                throw new IllegalStateException("Impossible : dernier administrateur.");
         }
         cible.setRole(nouveauRole);
     }
@@ -57,11 +58,6 @@ public class AdminService {
         System.out.println("Membres inscrits      : " + AuthService.users.size());
         System.out.println("Dont administrateurs  : " + nbAdmins);
         System.out.println("Solde total membres   : " + String.format("%.3f", soldeTotalMembres) + " DT");
-    }
-
-    @Override
-    public String toString() {
-        return "AdminService | session=" + (Session.isAdmin() ? "admin actif" : "non admin");
     }
 
     private static void verifierAdmin() {

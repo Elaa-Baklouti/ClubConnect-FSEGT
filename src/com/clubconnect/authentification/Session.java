@@ -1,8 +1,10 @@
-package com.clubconnect.models.authentification;
+package com.clubconnect.authentification;
+
+import com.clubconnect.models.User;
 
 public class Session {
 
-    static User currentUser;
+    public static User currentUser;
 
     public Session() { }
 

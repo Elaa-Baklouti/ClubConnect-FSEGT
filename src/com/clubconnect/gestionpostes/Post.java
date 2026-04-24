@@ -1,0 +1,182 @@
+package com.clubconnect.gestionpostes;
+
+import com.clubconnect.models.User;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * ============================================================
+ *  DOCUMENTATION TP3 — Approche IA assistee
+ * ============================================================
+ *  METHODE : publier()
+ *  Prompt utilise :
+ *    "Implemente publier() pour un Post. Verifier titre, contenu
+ *     et auteur non vides, marquer comme publie avec date."
+ *  Code genere par l'IA :
+ *    public void publier() {
+ *        if (titre == null || titre.isEmpty()) throw ...;
+ *        this.publie = true; this.datePublication = new Date();
+ *    }
+ *  Corrections humaines :
+ *    - Validation auteur non null
+ *    - Verification post non deja publie
+ *    - trim() pour les espaces
+ * ============================================================
+ *  METHODE : signalerPost()
+ *  Prompt utilise :
+ *    "signalerPost(User signaleur, String raison). Pas de doublon,
+ *     pas de signalement de son propre post."
+ *  Code genere par l'IA :
+ *    public void signalerPost(User signaleur, String raison) {
+ *        if (signaleur.getId() == auteur.getId()) throw ...;
+ *        signalements.add(signaleur.getUsername() + " : " + raison);
+ *    }
+ *  Corrections humaines :
+ *    - Verification doublon par utilisateur
+ *    - Cle prefixee [signalement:username]
+ * ============================================================
+ */
+public class Post {
+
+    private int id;
+    private String titre;
+    private String contenu;
+    private User auteur;
+    private List<String> commentaires;
+    private List<String> signalements;
+    private int likes;
+    private boolean publie;
+    private boolean epingle;
+    private Date datePublication;
+
+    public Post() {
+        this.commentaires = new ArrayList<>();
+        this.signalements = new ArrayList<>();
+        this.likes = 0; this.publie = false; this.epingle = false;
+    }
+
+    public Post(int id, String titre, String contenu, User auteur) {
+        this.id = id; this.titre = titre; this.contenu = contenu; this.auteur = auteur;
+        this.commentaires = new ArrayList<>();
+        this.signalements = new ArrayList<>();
+        this.likes = 0; this.publie = false; this.epingle = false;
+    }
+
+    public void publier() {
+        if (auteur == null) throw new IllegalStateException("Auteur invalide.");
+        if (titre == null || titre.trim().isEmpty()) throw new IllegalStateException("Titre vide.");
+        if (contenu == null || contenu.trim().isEmpty()) throw new IllegalStateException("Contenu vide.");
+        if (publie) throw new IllegalStateException("Post#" + id + " est deja publie.");
+        this.publie = true; this.datePublication = new Date();
+    }
+
+    public void ajouterCommentaire(User utilisateur, String texte) {
+        if (utilisateur == null) throw new IllegalArgumentException("Utilisateur invalide.");
+        if (texte == null || texte.trim().isEmpty()) throw new IllegalArgumentException("Commentaire vide.");
+        if (!publie) throw new IllegalStateException("Post non publie.");
+        commentaires.add(utilisateur.getUsername() + " : " + texte.trim());
+    }
+
+    public void liker(User utilisateur) {
+        if (utilisateur == null) throw new IllegalArgumentException("Utilisateur invalide.");
+        if (!publie) throw new IllegalStateException("Post non publie.");
+        if (auteur != null && auteur.getId() == utilisateur.getId())
+            throw new IllegalStateException("L'auteur ne peut pas liker son propre post.");
+        String marqueLike = "[like:" + utilisateur.getUsername() + "]";
+        if (commentaires.contains(marqueLike))
+            throw new IllegalStateException(utilisateur.getUsername() + " a deja like ce post.");
+        commentaires.add(marqueLike);
+        likes++;
+    }
+
+    public void retirerLike(User utilisateur) {
+        if (utilisateur == null) throw new IllegalArgumentException("Utilisateur invalide.");
+        String marqueLike = "[like:" + utilisateur.getUsername() + "]";
+        if (!commentaires.contains(marqueLike))
+            throw new IllegalStateException(utilisateur.getUsername() + " n'a pas like ce post.");
+        commentaires.remove(marqueLike); likes--;
+    }
+
+    public void epingler(User demandeur) {
+        if (demandeur == null) throw new IllegalArgumentException("Demandeur invalide.");
+        boolean estAuteur = auteur != null && auteur.getId() == demandeur.getId();
+        boolean estAdmin  = "admin".equalsIgnoreCase(demandeur.getRole());
+        if (!estAuteur && !estAdmin) throw new IllegalStateException("Non autorise.");
+        if (epingle) throw new IllegalStateException("Deja epingle.");
+        this.epingle = true;
+    }
+
+    public void desepingler(User demandeur) {
+        if (demandeur == null) throw new IllegalArgumentException("Demandeur invalide.");
+        boolean estAuteur = auteur != null && auteur.getId() == demandeur.getId();
+        boolean estAdmin  = "admin".equalsIgnoreCase(demandeur.getRole());
+        if (!estAuteur && !estAdmin) throw new IllegalStateException("Non autorise.");
+        if (!epingle) throw new IllegalStateException("Non epingle.");
+        this.epingle = false;
+    }
+
+    public void signalerPost(User signaleur, String raison) {
+        if (signaleur == null) throw new IllegalArgumentException("Signaleur invalide.");
+        if (raison == null || raison.trim().isEmpty()) throw new IllegalArgumentException("Raison obligatoire.");
+        if (auteur != null && auteur.getId() == signaleur.getId())
+            throw new IllegalStateException("Impossible de signaler son propre post.");
+        String cle = "[signalement:" + signaleur.getUsername() + "]";
+        if (signalements.stream().anyMatch(s -> s.startsWith(cle)))
+            throw new IllegalStateException(signaleur.getUsername() + " a deja signale ce post.");
+        signalements.add(cle + " " + raison.trim());
+    }
+
+    public void supprimerCommentaire(int index, User demandeur) {
+        if (demandeur == null) throw new IllegalArgumentException("Demandeur invalide.");
+        boolean estAuteur = auteur != null && auteur.getId() == demandeur.getId();
+        boolean estAdmin  = "admin".equalsIgnoreCase(demandeur.getRole());
+        if (!estAuteur && !estAdmin) throw new IllegalStateException("Permission refusee.");
+        List<String> visibles = commentaires.stream()
+                .filter(c -> !c.startsWith("[like:")).collect(Collectors.toList());
+        if (index < 0 || index >= visibles.size()) throw new IndexOutOfBoundsException("Index invalide.");
+        commentaires.remove(visibles.get(index));
+    }
+
+    public void afficherDetails() {
+        System.out.println("=== Details Post#" + id + " ===");
+        System.out.println("Titre        : " + titre + (epingle ? " [EPINGLE]" : ""));
+        System.out.println("Contenu      : " + contenu);
+        System.out.println("Auteur       : " + (auteur != null ? auteur.getUsername() : "N/A"));
+        System.out.println("Statut       : " + (publie ? "Publie le " + datePublication : "Brouillon"));
+        System.out.println("Likes        : " + likes);
+        System.out.println("Signalements : " + signalements.size());
+        List<String> visibles = commentaires.stream()
+                .filter(c -> !c.startsWith("[like:")).collect(Collectors.toList());
+        System.out.println("Commentaires (" + visibles.size() + ") :");
+        for (int i = 0; i < visibles.size(); i++)
+            System.out.println("  [" + i + "] " + visibles.get(i));
+    }
+
+    @Override
+    public String toString() {
+        long nbComm = commentaires.stream().filter(c -> !c.startsWith("[like:")).count();
+        return "Post#" + id + (epingle ? " [EPINGLE]" : "") + " [" + titre + "] par "
+             + (auteur != null ? auteur.getUsername() : "N/A")
+             + " | likes=" + likes + " | commentaires=" + nbComm
+             + " | " + (publie ? "publie" : "brouillon");
+    }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getTitre() { return titre; }
+    public void setTitre(String titre) { this.titre = titre; }
+    public String getContenu() { return contenu; }
+    public void setContenu(String contenu) { this.contenu = contenu; }
+    public User getAuteur() { return auteur; }
+    public void setAuteur(User auteur) { this.auteur = auteur; }
+    public List<String> getCommentaires() { return commentaires; }
+    public void setCommentaires(List<String> c) { this.commentaires = c; }
+    public List<String> getSignalements() { return signalements; }
+    public int getLikes() { return likes; }
+    public void setLikes(int likes) { this.likes = likes; }
+    public boolean isPublie() { return publie; }
+    public boolean isEpingle() { return epingle; }
+    public Date getDatePublication() { return datePublication; }
+}
