@@ -1,60 +1,34 @@
 /**
  * ============================================================
-
- *  DOCUMENTATION TP3 — Approche IA assistée
+ *  DOCUMENTATION TP3 — Approche IA assistee
  * ============================================================
- *
- * MÉTHODE : debiterSolde() / crediterSolde()
- * --------------------------------
- * Prompt utilisé :
- *   "Ajoute un champ solde en DT (Dinar Tunisien) à la classe User avec
- *    les méthodes debiterSolde(double montant) et crediterSolde(double montant).
- *    Valider que le montant est positif et que le solde ne devient pas négatif."
- *
- * Code généré par l'IA :
- *   public void debiterSolde(double montant) {
- *       if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
- *       if (solde < montant) throw new IllegalStateException("Solde insuffisant.");
- *       solde -= montant;
- *   }
- *   public void crediterSolde(double montant) {
- *       if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
- *       solde += montant;
- *   }
- *
- * Corrections humaines :
- *   - Ajout du constructeur avec solde initial
- *   - Arrondi à 3 décimales (standard DT)
-=======
- *  DOCUMENTATION TP1 — Approche hybride
- * ============================================================
- *  ÉTAPE 1 — Squelette AGL (déterministe) :
- *    Pattern : champs privés → constructeurs (vide + complet)
- *    → méthodes métier (signatures) → getters/setters
- *    Nommage français : seConnecter(), seDeconnecter(),
- *    debiterSolde(), crediterSolde(), afficherDetails()
- *
- *  ÉTAPE 2 — Implémentation IA assistée :
- *    Prompt utilisé :
- *      "Ajoute un champ solde en DT à la classe User avec
- *       debiterSolde(double) et crediterSolde(double).
- *       Valider montant positif et solde non négatif."
- *    Corrections humaines : arrondi 3 décimales (standard DT)
->>>>>>> feature/posts
+ *  METHODE : debiterSolde() / crediterSolde()
+ *  Prompt utilise :
+ *    "Ajoute un champ solde en DT a la classe User avec
+ *     debiterSolde(double montant) et crediterSolde(double montant).
+ *     Valider que le montant est positif et que le solde ne devient
+ *     pas negatif."
+ *  Code genere par l'IA :
+ *    public void debiterSolde(double montant) {
+ *        if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
+ *        if (solde < montant) throw new IllegalStateException("Solde insuffisant.");
+ *        solde -= montant;
+ *    }
+ *  Corrections humaines :
+ *    - Ajout constructeur avec solde initial
+ *    - Arrondi 3 decimales (standard DT)
+ *    - seConnecter() / seDeconnecter() sans Session (autonome)
  * ============================================================
  */
 public class User {
 
-    // --- Champs privés ---
+    // --- Champs prives ---
     private int id;
     private String username;
     private String email;
     private String password;
     private String role;
-
-    private double solde; // en DT (Dinar Tunisien)
-
-    private double solde;
+    private double solde; // en DT
 
     // --- Constructeur vide ---
     public User() {
@@ -79,63 +53,17 @@ public class User {
     }
 
     // ============================================================
-
-    //  MÉTHODES MÉTIER — Logique réelle
-    // ============================================================
-
-    /**
-     * CF-1 : Connexion — vérifie que le compte est valide.
-     */
-    public void seConnecter() {
-        if (username == null || email == null)
-            throw new IllegalStateException("Compte invalide.");
-        Session.login(this);
-    }
-
-    /**
-     * CF-2 : Déconnexion.
-     */
-    public void seDeconnecter() {
-        Session.logout();
-    }
-
-    /**
-     * Débiter le solde (paiement frais d'inscription événement).
-     * Montant en DT.
-     */
-    public void debiterSolde(double montant) {
-        if (montant <= 0)
-            throw new IllegalArgumentException("Le montant à débiter doit être positif.");
-        if (solde < montant)
-            throw new IllegalStateException("Solde insuffisant. Solde actuel : " + solde + " DT.");
-        solde = Math.round((solde - montant) * 1000.0) / 1000.0;
-    }
-
-    /**
-     * Créditer le solde (remboursement annulation événement).
-     * Montant en DT.
-     */
-    public void crediterSolde(double montant) {
-        if (montant <= 0)
-            throw new IllegalArgumentException("Le montant à créditer doit être positif.");
-        solde = Math.round((solde + montant) * 1000.0) / 1000.0;
-    }
-
-    /**
-     * Afficher le profil complet du membre.
-     */
-
-    //  MÉTHODES MÉTIER
+    //  METHODES METIER
     // ============================================================
 
     public void seConnecter() {
         if (username == null || email == null)
             throw new IllegalStateException("Compte invalide.");
-        System.out.println(username + " connecté.");
+        System.out.println(username + " connecte.");
     }
 
     public void seDeconnecter() {
-        System.out.println(username + " déconnecté.");
+        System.out.println(username + " deconnecte.");
     }
 
     public void debiterSolde(double montant) {
@@ -152,23 +80,14 @@ public class User {
         solde = Math.round((solde + montant) * 1000.0) / 1000.0;
     }
 
-
     public void afficherDetails() {
         System.out.println("=== Profil Membre ===");
         System.out.println("ID       : " + id);
         System.out.println("Username : " + username);
         System.out.println("Email    : " + email);
-
-        System.out.println("Rôle     : " + role);
-        System.out.println("Solde    : " + solde + " DT");
-    }
-
-    // --- toString ---
-
         System.out.println("Role     : " + role);
         System.out.println("Solde    : " + solde + " DT");
     }
-
 
     @Override
     public String toString() {

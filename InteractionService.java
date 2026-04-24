@@ -3,112 +3,55 @@ import java.util.stream.Collectors;
 
 /**
  * ============================================================
-
- *  DOCUMENTATION TP1 — Approche hybride
- * ============================================================
- *
- *  ÉTAPE 1 — Squelette AGL (déterministe) :
- *    Service dédié aux interactions sociales sur les posts :
- *    commentaires et likes.
- *    Pattern : champs privés → constructeurs (vide + complet)
- *    → méthodes métier (signatures) → getters/setters
- *    Nommage français : commenter(), liker(),
- *    afficherCommentaires(), afficherDetailsPost()
- *
- *  ÉTAPE 2 — Implémentation IA assistée :
- *    Prompt utilisé :
- *      "Crée un InteractionService Java qui gère les commentaires
- *       et les likes sur des posts. Il reçoit un PostService en
- *       dépendance. Méthodes : commenter(postId, utilisateur, texte),
- *       liker(postId, utilisateur), afficherCommentaires(postId).
- *       Lancer des exceptions si le post est introuvable."
- *
- *    Code généré par l'IA (base) :
- *      - Structure avec PostService injecté, commenter(), liker()
- *
- *    Corrections humaines :
- *      - Injection par constructeur (pas de static)
- *      - afficherCommentaires() filtre les marqueurs [like:]
- *      - Ajout de afficherDetailsPost() délégant à Post
-=======
  *  DOCUMENTATION TP3 — Approche IA assistee
  * ============================================================
- *
  *  METHODE : commenter()
- *  ---------------------
  *  Prompt utilise :
- *    "Implemente commenter(int postId, User utilisateur, String texte)
- *     dans InteractionService. Verifier que l'utilisateur n'est pas
- *     banni, que le post est publie, et que le texte n'est pas vide.
- *     Un commentaire ne peut pas depasser 280 caracteres."
- *
+ *    "Implemente commenter(postId, utilisateur, texte). Verifier
+ *     non banni, post publie, texte <= 280 caracteres."
  *  Code genere par l'IA :
  *    public void commenter(int postId, User utilisateur, String texte) {
- *        if (texte.length() > 280)
- *            throw new IllegalArgumentException("Commentaire trop long.");
- *        Post post = postService.trouverParId(postId);
- *        post.ajouterCommentaire(utilisateur, texte);
+ *        if (texte.length() > 280) throw ...;
+ *        postService.trouverParId(postId).ajouterCommentaire(utilisateur, texte);
  *    }
- *
  *  Corrections humaines :
- *    - Ajout verification utilisateur non null
- *    - Ajout verification role "banni"
- *    - Ajout verification post non null avant appel
- *
+ *    - Verification utilisateur non null
+ *    - Verification role "banni"
+ *    - Verification post non null avant appel
  * ============================================================
- *
  *  METHODE : liker() / retirerLike()
- *  -----------------------------------
  *  Prompt utilise :
- *    "Implemente liker(int postId, User utilisateur) et retirerLike()
- *     dans InteractionService. Deleguer la logique metier a Post.liker()
- *     et Post.retirerLike(). Verifier que l'utilisateur est valide."
- *
+ *    "Implemente liker() et retirerLike() en delegant a Post."
  *  Code genere par l'IA :
  *    public void liker(int postId, User utilisateur) {
  *        postService.trouverParId(postId).liker(utilisateur);
  *    }
- *
  *  Corrections humaines :
- *    - Ajout verification post non null avec message clair
- *    - Ajout verification utilisateur non banni
- *
+ *    - Verification post non null avec message clair
+ *    - Verification utilisateur non banni
  * ============================================================
- *
  *  METHODE : signalerPost()
- *  ------------------------
  *  Prompt utilise :
- *    "Implemente signalerPost(int postId, User signaleur, String raison)
- *     dans InteractionService. Deleguer a Post.signalerPost(). Si le
- *     post atteint 3 signalements, le masquer automatiquement."
- *
+ *    "signalerPost(postId, signaleur, raison). Si >= 3 signalements,
+ *     masquer automatiquement le post."
  *  Code genere par l'IA :
  *    public void signalerPost(int postId, User signaleur, String raison) {
  *        Post post = postService.trouverParId(postId);
  *        post.signalerPost(signaleur, raison);
  *        if (post.getSignalements().size() >= 3)
- *            System.out.println("Post masque automatiquement.");
+ *            System.out.println("Post masque.");
  *    }
- *
  *  Corrections humaines :
- *    - Seuil configurable (SEUIL_SIGNALEMENT) au lieu de 3 en dur
- *    - Masquage reel via flag au lieu de simple println
- *
->>>>>>> feature/posts
+ *    - Seuil configurable SEUIL_SIGNALEMENT
+ *    - Masquage reel via suppression de la liste
  * ============================================================
  */
 public class InteractionService {
 
-
-    // --- Champs privés ---
-
-    // Seuil de signalements avant masquage automatique
     public static final int SEUIL_SIGNALEMENT = 3;
-    // Limite caracteres par commentaire
     public static final int MAX_COMMENTAIRE   = 280;
 
     // --- Champs prives ---
-
     private PostService postService;
 
     // --- Constructeur vide ---
@@ -122,28 +65,10 @@ public class InteractionService {
     }
 
     // ============================================================
-
-    //  MÉTHODES MÉTIER
-
-    //  METHODES METIER — logique reelle
-
+    //  METHODES METIER
     // ============================================================
 
-    /**
-     * CF-10 : Commenter un post.
-
-     */
-    public void commenter(int postId, User utilisateur, String texte) {
-        if (utilisateur == null)
-            throw new IllegalStateException("Connexion requise pour commenter.");
-        Post post = postService.trouverParId(postId);
-        if (post == null)
-            throw new IllegalArgumentException("Post#" + postId + " introuvable.");
-
-     * - Utilisateur non banni
-     * - Post publie
-     * - Texte <= 280 caracteres
-     */
+    /** CF-10 : Commenter un post. */
     public void commenter(int postId, User utilisateur, String texte) {
         validerUtilisateur(utilisateur, "commenter");
         if (texte == null || texte.trim().isEmpty())
@@ -151,85 +76,34 @@ public class InteractionService {
         if (texte.length() > MAX_COMMENTAIRE)
             throw new IllegalArgumentException("Commentaire trop long ("
                     + texte.length() + "/" + MAX_COMMENTAIRE + " caracteres).");
-        Post post = getPostOuException(postId);
-
-        post.ajouterCommentaire(utilisateur, texte);
+        getPostOuException(postId).ajouterCommentaire(utilisateur, texte);
     }
 
-    /**
-     * CF-11 : Liker un post.
-
-     */
-    public void liker(int postId, User utilisateur) {
-        if (utilisateur == null)
-            throw new IllegalStateException("Connexion requise pour liker.");
-        Post post = postService.trouverParId(postId);
-        if (post == null)
-            throw new IllegalArgumentException("Post#" + postId + " introuvable.");
-
-     * Interaction avec Post : incremente likes, anti-doublon.
-     */
+    /** CF-11 : Liker un post. */
     public void liker(int postId, User utilisateur) {
         validerUtilisateur(utilisateur, "liker");
-        Post post = getPostOuException(postId);
-
-        post.liker(utilisateur);
+        getPostOuException(postId).liker(utilisateur);
     }
 
-    /**
-
-     * Afficher les commentaires visibles d'un post (sans marqueurs de like).
-     */
-    public void afficherCommentaires(int postId) {
-        Post post = postService.trouverParId(postId);
-        if (post == null)
-            throw new IllegalArgumentException("Post#" + postId + " introuvable.");
-        List<String> visibles = post.getCommentaires().stream()
-                .filter(c -> !c.startsWith("[like:"))
-                .collect(Collectors.toList());
-        System.out.println("=== Commentaires Post#" + postId + " ===");
-        if (visibles.isEmpty())
-            System.out.println("Aucun commentaire.");
-        else
-            visibles.forEach(System.out::println);
-    }
-
-    /**
-     * Afficher les détails complets d'un post.
-     */
-    public void afficherDetailsPost(int postId) {
-        Post post = postService.trouverParId(postId);
-        if (post == null)
-            throw new IllegalArgumentException("Post#" + postId + " introuvable.");
-        post.afficherDetails();
-
-     * Retirer son like d'un post.
-     */
+    /** Retirer son like. */
     public void retirerLike(int postId, User utilisateur) {
         validerUtilisateur(utilisateur, "retirer un like");
-        Post post = getPostOuException(postId);
-        post.retirerLike(utilisateur);
+        getPostOuException(postId).retirerLike(utilisateur);
     }
 
     /**
-     * Signaler un post pour contenu inapproprie.
-     * Si le seuil de signalements est atteint, le post est masque automatiquement
-     * (supprime de la liste publique via PostService).
-     * Interaction : Post.signalerPost() → PostService.supprimerPost() si seuil atteint.
+     * Signaler un post. Masquage automatique si seuil atteint.
+     * Interaction : Post.signalerPost() → PostService retire le post si seuil.
      */
     public void signalerPost(int postId, User signaleur, String raison) {
         validerUtilisateur(signaleur, "signaler");
         Post post = getPostOuException(postId);
         post.signalerPost(signaleur, raison);
-        // Masquage automatique si seuil atteint
-        if (post.getSignalements().size() >= SEUIL_SIGNALEMENT) {
+        if (post.getSignalements().size() >= SEUIL_SIGNALEMENT)
             postService.getPosts().remove(post);
-        }
     }
 
-    /**
-     * Afficher les commentaires visibles d'un post (sans marqueurs internes).
-     */
+    /** Afficher les commentaires visibles d'un post. */
     public void afficherCommentaires(int postId) {
         Post post = getPostOuException(postId);
         List<String> visibles = post.getCommentaires().stream()
@@ -243,17 +117,12 @@ public class InteractionService {
             visibles.forEach(c -> System.out.println("  - " + c));
     }
 
-    /**
-     * Afficher les details complets d'un post.
-     */
+    /** Afficher les details complets d'un post. */
     public void afficherDetailsPost(int postId) {
         getPostOuException(postId).afficherDetails();
     }
 
-    // ============================================================
-    //  UTILITAIRES PRIVES
-    // ============================================================
-
+    // --- Utilitaires prives ---
     private void validerUtilisateur(User u, String action) {
         if (u == null)
             throw new IllegalStateException("Connexion requise pour " + action + ".");
@@ -266,7 +135,6 @@ public class InteractionService {
         if (post == null)
             throw new IllegalArgumentException("Post#" + postId + " introuvable.");
         return post;
-
     }
 
     // --- Getters / Setters ---
