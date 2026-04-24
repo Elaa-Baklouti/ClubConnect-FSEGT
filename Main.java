@@ -22,7 +22,7 @@ public class Main {
         AuthService.users.add(carol);
         AuthService.users.add(admin);
 
-        List<User> tousLesUsers = new ArrayList<>(AuthService.users);
+        List<User> tousLesUsers = new ArrayList<User>(AuthService.users);
 
         // ============================================================
         //  SCÉNARIO 1 : Un membre s'inscrit à un événement

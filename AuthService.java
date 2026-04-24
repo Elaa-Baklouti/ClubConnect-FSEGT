@@ -59,7 +59,7 @@ import java.util.List;
 public class AuthService {
 
     // --- Champs ---
-    static List<User> users = new ArrayList<>();
+    static List<User> users = new ArrayList<User>();
     static int nextId = 1;
 
     // --- Constructeur vide ---
