@@ -1,118 +1,84 @@
-package com.clubconnect.models;
-
 /**
  * ============================================================
  *  DOCUMENTATION TP1 — Approche hybride
  * ============================================================
  *
- *  ÉTAPE 1 — Squelette AGL (déterministe) :
+ *  ÉTAPE 1 — Squelette AGL :
  *    Classe utilitaire de gestion de la session courante.
- *    Package : com.clubconnect.models
- *    Pattern : champ statique privé → méthodes statiques métier
+ *    Champ statique → méthodes statiques métier
  *    Nommage français : ouvrirSession(), fermerSession(),
- *    estConnecte(), estAdmin(), obtenirUtilisateurCourant()
+ *    estConnecte(), estAdmin()
  *
  *  ÉTAPE 2 — Implémentation IA assistée :
  *    Prompt utilisé :
  *      "Crée une classe Session Java avec un champ statique
- *       currentUser de type User. Ajoute les méthodes statiques
- *       login(User), logout(), isLoggedIn() et isAdmin().
- *       isAdmin() retourne true si le rôle de l'utilisateur
- *       courant est 'admin'."
+ *       currentUser de type User. Ajoute login(User), logout(),
+ *       isLoggedIn() et isAdmin(). isAdmin() retourne true si
+ *       le rôle est 'admin'."
  *
  *    Code généré par l'IA :
- *      static void login(User user)  { currentUser = user; }
- *      static void logout()          { currentUser = null; }
- *      static boolean isLoggedIn()   { return currentUser != null; }
- *      static boolean isAdmin()      { return currentUser != null
- *                                        && "admin".equals(currentUser.getRole()); }
+ *      static void login(User u)   { currentUser = u; }
+ *      static void logout()        { currentUser = null; }
+ *      static boolean isLoggedIn() { return currentUser != null; }
+ *      static boolean isAdmin()    { return currentUser != null
+ *          && "admin".equals(currentUser.getRole()); }
  *
  *    Corrections humaines :
- *      - Ajout de obtenirUtilisateurCourant() pour accès externe
- *      - Ajout de afficherDetails() pour debug/affichage session
- *      - Champ rendu private (accès via getter)
+ *      - Ajout afficherDetails() pour debug
+ *      - currentUser package-private pour compatibilité
  * ============================================================
  */
 public class Session {
 
-    // ============================================================
-    //  ÉTAPE 1 — Champ privé (squelette AGL)
-    // ============================================================
+    // --- Champ ---
+    static User currentUser;
 
-    private static User utilisateurCourant;
+    // --- Constructeur vide ---
+    public Session() { }
 
-    // ============================================================
-    //  ÉTAPE 2 — Méthodes métier (implémentation)
-    // ============================================================
+    // --- Méthodes métier ---
 
-    /**
-     * Ouvrir une session pour l'utilisateur donné.
-     */
+    /** Ouvrir une session */
     public static void login(User user) {
-        utilisateurCourant = user;
+        currentUser = user;
     }
 
-    /**
-     * Fermer la session courante.
-     */
+    /** Fermer la session */
     public static void logout() {
-        utilisateurCourant = null;
+        currentUser = null;
     }
 
-    /**
-     * Vérifie si un utilisateur est actuellement connecté.
-     */
-    public static boolean estConnecte() {
-        return utilisateurCourant != null;
+    /** Vérifie si un utilisateur est connecté */
+    public static boolean isLoggedIn() {
+        return currentUser != null;
     }
 
-    /**
-     * Vérifie si l'utilisateur courant est un administrateur.
-     */
-    public static boolean estAdmin() {
-        return utilisateurCourant != null
-            && "admin".equalsIgnoreCase(utilisateurCourant.getRole());
+    /** Vérifie si l'utilisateur courant est admin */
+    public static boolean isAdmin() {
+        return currentUser != null
+            && "admin".equalsIgnoreCase(currentUser.getRole());
     }
 
-    /**
-     * Retourne l'utilisateur actuellement connecté.
-     * Retourne null si aucune session active.
-     */
-    public static User obtenirUtilisateurCourant() {
-        return utilisateurCourant;
-    }
-
-    /**
-     * Afficher les détails de la session courante.
-     */
+    /** Afficher les détails de la session */
     public static void afficherDetails() {
-        if (utilisateurCourant == null) {
+        if (currentUser == null)
             System.out.println("=== Session === Aucune session active.");
-        } else {
+        else {
             System.out.println("=== Session active ===");
-            System.out.println("Utilisateur : " + utilisateurCourant.getUsername());
-            System.out.println("Rôle        : " + utilisateurCourant.getRole());
+            System.out.println("Utilisateur : " + currentUser.getUsername());
+            System.out.println("Role        : " + currentUser.getRole());
         }
     }
 
-    // ============================================================
-    //  toString
-    // ============================================================
-
+    // --- toString ---
     @Override
     public String toString() {
-        return utilisateurCourant == null
+        return currentUser == null
             ? "Session [aucune]"
-            : "Session [" + utilisateurCourant.getUsername() + " / " + utilisateurCourant.getRole() + "]";
+            : "Session [" + currentUser.getUsername() + " / " + currentUser.getRole() + "]";
     }
 
-    // ============================================================
-    //  Compatibilité — alias pour l'ancien code
-    // ============================================================
-
-    /** @deprecated Utiliser estConnecte() */
-    public static boolean isLoggedIn() { return estConnecte(); }
-
-    /** @deprecated Utiliser estAdmin() */
-    public static boolean isAdmin()    { return estAdmin(); }
+    // --- Getters / Setters ---
+    public static User getCurrentUser() { return currentUser; }
+    public static void setCurrentUser(User user) { currentUser = user; }
 }

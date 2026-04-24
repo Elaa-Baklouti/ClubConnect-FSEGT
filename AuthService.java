@@ -1,5 +1,3 @@
-package com.clubconnect.models;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +6,11 @@ import java.util.List;
  *  DOCUMENTATION TP1 — Approche hybride
  * ============================================================
  *
- *  ÉTAPE 1 — Squelette AGL (déterministe) :
- *    Service d'authentification — gère l'inscription, la
- *    connexion et la déconnexion des membres.
- *    Package : com.clubconnect.models
- *    Pattern : champs privés → constructeur vide
- *             → méthodes métier (signatures) → getters/setters
+ *  ÉTAPE 1 — Squelette AGL :
+ *    Service d'authentification — inscription, connexion,
+ *    déconnexion des membres.
+ *    Champs privés → constructeur vide → méthodes métier
+ *    (signatures) → getters/setters
  *    Nommage français : inscrire(), seConnecter(),
  *    seDeconnecter(), afficherDetails()
  *
@@ -23,160 +20,101 @@ import java.util.List;
  *       d'utilisateurs. Méthodes : inscription(username, email,
  *       password) qui valide les champs et crée un User, et
  *       login(email, password) qui cherche l'utilisateur et
- *       ouvre la session. Lancer des exceptions métier si les
- *       règles sont violées."
+ *       ouvre la session. Lancer des exceptions si les règles
+ *       sont violées."
  *
  *    Code généré par l'IA :
- *      static User inscription(String username, String email, String password) {
+ *      static User inscription(String u, String e, String p) {
  *          // validation + new User + users.add()
  *      }
  *      static User login(String email, String password) {
- *          // recherche dans users + Session.login()
+ *          // recherche + Session.login()
  *      }
  *
  *    Corrections humaines :
- *      - Validation email : vérification présence de '@' et '.'
- *      - Validation password : longueur minimale 6 caractères
- *      - Ajout de trouverParEmail() comme utilitaire privé
- *      - Ajout de afficherDetails() pour lister les membres
+ *      - Vérification unicité email
+ *      - Extraction trouverParEmail() utilitaire privé
+ *      - Ajout afficherDetails()
  * ============================================================
  */
 public class AuthService {
 
-    // ============================================================
-    //  ÉTAPE 1 — Champs privés (squelette AGL)
-    // ============================================================
+    // --- Champs ---
+    static List<User> users = new ArrayList<>();
+    static int nextId = 1;
 
-    private static List<User> users  = new ArrayList<>();
-    private static int        nextId = 1;
-
-    // ============================================================
-    //  ÉTAPE 1 — Constructeur vide
-    // ============================================================
-
+    // --- Constructeur vide ---
     public AuthService() { }
 
-    // ============================================================
-    //  ÉTAPE 2 — Méthodes métier (implémentation)
-    // ============================================================
+    // --- Méthodes métier ---
 
-    /**
-     * CF-1 : Inscrire un nouveau membre.
-     * Valide username, email et mot de passe avant création.
-     *
-     * @param username  Nom d'utilisateur (non vide)
-     * @param email     Adresse email valide (contient '@' et '.')
-     * @param password  Mot de passe (6 caractères minimum)
-     * @return          Le User créé et ajouté à la liste
-     */
+    /** CF-1 : Inscrire un nouveau membre */
     public static User inscrire(String username, String email, String password) {
         if (username == null || username.isBlank())
-            throw new IllegalArgumentException("Le nom d'utilisateur est obligatoire.");
+            throw new IllegalArgumentException("Username obligatoire.");
         if (email == null || !email.contains("@") || !email.contains("."))
-            throw new IllegalArgumentException("Adresse email invalide.");
+            throw new IllegalArgumentException("Email invalide.");
         if (password == null || password.length() < 6)
-            throw new IllegalArgumentException("Le mot de passe doit contenir au moins 6 caractères.");
-
-        // Vérifier unicité de l'email
+            throw new IllegalArgumentException("Mot de passe trop court (6 min).");
         if (trouverParEmail(email) != null)
-            throw new IllegalStateException("Un compte existe déjà avec l'email : " + email);
+            throw new IllegalStateException("Email deja utilise.");
 
         User user = new User(nextId++, username, email, password);
         users.add(user);
-        System.out.println("Inscription réussie : " + username);
+        System.out.println("Inscription OK : " + username);
         return user;
     }
 
-    /**
-     * CF-2 : Connecter un membre existant.
-     * Recherche par email + mot de passe, puis ouvre la session.
-     *
-     * @param email     Email du membre
-     * @param password  Mot de passe du membre
-     * @return          Le User connecté
-     */
+    /** CF-2 : Connecter un membre */
     public static User seConnecter(String email, String password) {
         User user = trouverParEmail(email);
         if (user == null || !user.getPassword().equals(password))
             throw new IllegalStateException("Email ou mot de passe incorrect.");
-
         Session.login(user);
-        System.out.println("Connecté : " + user.getUsername());
+        System.out.println("Connecte : " + user.getUsername());
         return user;
     }
 
-    /**
-     * CF-2b : Déconnecter le membre courant.
-     */
+    /** CF-2b : Déconnecter le membre courant */
     public static void seDeconnecter() {
         Session.logout();
-        System.out.println("Déconnexion effectuée.");
+        System.out.println("Deconnexion effectuee.");
     }
 
-    /**
-     * Afficher la liste de tous les membres inscrits.
-     */
+    /** Afficher tous les membres */
     public static void afficherDetails() {
         System.out.println("=== Membres inscrits (" + users.size() + ") ===");
-        if (users.isEmpty()) {
-            System.out.println("  Aucun membre.");
-        } else {
-            for (User u : users) {
-                System.out.println("  - " + u);
-            }
-        }
+        for (User u : users)
+            System.out.println("  - " + u);
     }
 
-    // ============================================================
-    //  Utilitaire privé
-    // ============================================================
-
-    /**
-     * Rechercher un utilisateur par son email.
-     * Retourne null si introuvable.
-     */
+    // --- Utilitaire privé ---
     private static User trouverParEmail(String email) {
-        for (User u : users) {
-            if (u.getEmail().equalsIgnoreCase(email))
-                return u;
-        }
+        for (User u : users)
+            if (u.getEmail().equalsIgnoreCase(email)) return u;
         return null;
     }
 
-    // ============================================================
-    //  toString
-    // ============================================================
-
+    // --- toString ---
     @Override
     public String toString() {
         return "AuthService | membres=" + users.size();
     }
 
-    // ============================================================
-    //  Getters / Setters
-    // ============================================================
+    // --- Getters / Setters ---
+    public static List<User> getUsers() { return users; }
+    public static void setUsers(List<User> u) { users = u; }
 
-    public static List<User> getUsers()          { return users; }
-    public static void setUsers(List<User> u)    { users = u; }
+    public static int getNextId() { return nextId; }
+    public static void setNextId(int id) { nextId = id; }
 
-    public static int getNextId()                { return nextId; }
-    public static void setNextId(int id)         { nextId = id; }
-
-    // ============================================================
-    //  Compatibilité — alias pour l'ancien code
-    // ============================================================
-
-    /** @deprecated Utiliser inscrire() */
+    // --- Alias compatibilité ancien code ---
     public static User inscription(String username, String email, String password) {
         return inscrire(username, email, password);
     }
-
-    /** @deprecated Utiliser seConnecter() */
     public static User login(String email, String password) {
         return seConnecter(email, password);
     }
-
-    /** @deprecated Utiliser seDeconnecter() */
     public static void logout() {
         seDeconnecter();
     }
