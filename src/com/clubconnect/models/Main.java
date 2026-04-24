@@ -2,8 +2,8 @@ package com.clubconnect.models;
 
 /**
  * ============================================================
- *  ClubConnect FSEGT — Demonstration Finale (TP1)
- *  Modules : AuthService + InteractionService
+ *  ClubConnect FSEGT — Main.java (V1)
+ *  Demonstration du module InteractionService
  * ============================================================
  *  Compile :
  *    javac -encoding UTF-8 -d out src/com/clubconnect/models/*.java
@@ -16,137 +16,181 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("==============================================");
-        System.out.println("  ClubConnect FSEGT — Demonstration Finale   ");
+        System.out.println("  ClubConnect FSEGT — Demo InteractionService");
         System.out.println("==============================================");
         System.out.println();
 
-        // --- Donnees de base ---
-        User alice = AuthService.inscrire("alice", "alice@fsegt.tn", "pass123");
-        User bob   = AuthService.inscrire("bob",   "bob@fsegt.tn",   "pass456");
-        User carol = AuthService.inscrire("carol", "carol@fsegt.tn", "pass789");
-        alice.setSolde(10.0); bob.setSolde(5.0); carol.setSolde(8.0);
-
-        User admin = new User(99, "admin", "admin@fsegt.tn", "admin00");
+        // ============================================================
+        //  DONNEES DE BASE (en dur)
+        // ============================================================
+        User alice = new User(1, "alice", "alice@fsegt.tn", "pass123", 10.0);
+        User bob   = new User(2, "bob",   "bob@fsegt.tn",   "pass456",  5.0);
+        User carol = new User(3, "carol", "carol@fsegt.tn", "pass789",  8.0);
+        User admin = new User(4, "admin", "admin@fsegt.tn", "admin00",  0.0);
         admin.setRole("admin");
+        User banni = new User(5, "spam",  "spam@fsegt.tn",  "xxx",      0.0);
+        banni.setRole("banni");
 
         PostService        postService  = new PostService();
         InteractionService interactions = new InteractionService(postService);
 
         // ============================================================
-        //  SCENARIO 1 : Inscription et connexion
+        //  SCENARIO 1 : Publication de posts
         // ============================================================
-        System.out.println(">> Scenario 1 : Inscription et connexion");
-        System.out.println("------------------------------------------");
-
-        System.out.println("1. Inscription de alice...  [OK]");
-        alice.afficherDetails();
-        System.out.println();
-
-        System.out.println("2. Connexion de alice...");
-        AuthService.seConnecter("alice@fsegt.tn", "pass123");
-        Session.afficherDetails();
-        System.out.println("   Nb connexions : " + alice.getNbConnexions() + "  [OK]");
-        System.out.println();
-
-        System.out.println("3. Tentative mauvais mot de passe...");
-        try {
-            AuthService.seConnecter("bob@fsegt.tn", "mauvais");
-        } catch (IllegalStateException e) {
-            System.out.println("   ERREUR attendue -> " + e.getMessage() + "  [OK]");
-        }
-        System.out.println();
-
-        System.out.println("4. Deconnexion de alice...");
-        AuthService.seDeconnecter();
-        System.out.println("   Session active : " + Session.estConnecte() + "  [OK]");
-        System.out.println();
-
-        // ============================================================
-        //  SCENARIO 2 : Publication et interactions
-        // ============================================================
-        System.out.println(">> Scenario 2 : Publication et interactions");
-        System.out.println("--------------------------------------------");
+        System.out.println("--- Scenario 1 : Publication de posts ---");
 
         System.out.println("1. Alice publie un post (frais : "
             + PostService.FRAIS_PUBLICATION + " DT)...");
         Post p1 = postService.creerEtPublier(
             "Hackathon FSEGT 2026",
-            "Rejoignez-nous le 10 mai - Prix : 500 DT !", alice);
-        System.out.println("   Post publie : " + p1.getTitre() + "  [OK]");
-        System.out.println("   Solde alice : " + String.format("%.3f", alice.getSolde()) + " DT");
+            "Rejoignez-nous le 10 mai. Prix : 500 DT !", alice);
+        System.out.println("   OK : " + p1);
+        System.out.println("   Solde alice apres : "
+            + String.format("%.3f", alice.getSolde()) + " DT");
         System.out.println();
 
         System.out.println("2. Bob publie un post...");
         Post p2 = postService.creerEtPublier(
-            "Atelier Java Debutants", "Samedi 15h - Salle B.", bob);
-        System.out.println("   Post publie : " + p2.getTitre() + "  [OK]");
+            "Atelier Java Debutants",
+            "Samedi 15h - Salle B. Gratuit !", bob);
+        System.out.println("   OK : " + p2);
         System.out.println();
 
-        System.out.println("3. Carol tente de publier (solde insuffisant)...");
-        User pauvre = AuthService.inscrire("pauvre", "pauvre@fsegt.tn", "pauvre1");
-        pauvre.setSolde(0.2);
+        System.out.println("3. Tentative publication (solde insuffisant)...");
+        User pauvre = new User(6, "pauvre", "pauvre@fsegt.tn", "p", 0.2);
         try {
             postService.creerEtPublier("Post impossible", "...", pauvre);
         } catch (IllegalStateException e) {
-            System.out.println("   ERREUR attendue -> " + e.getMessage() + "  [OK]");
+            System.out.println("   ERREUR attendue -> " + e.getMessage());
         }
         System.out.println();
 
-        System.out.println("4. Bob et Carol commentent le post de alice...");
-        interactions.commenter(p1.getId(), bob,   "Super initiative !");
-        interactions.commenter(p1.getId(), carol, "Date limite ?");
-        System.out.println("   2 commentaires ajoutes  [OK]");
+        System.out.println("4. Tentative publication (compte banni)...");
+        try {
+            postService.creerEtPublier("Post banni", "...", banni);
+        } catch (IllegalStateException e) {
+            System.out.println("   ERREUR attendue -> " + e.getMessage());
+        }
         System.out.println();
 
-        System.out.println("5. Likes sur Post#" + p1.getId() + "...");
+        // ============================================================
+        //  SCENARIO 2 : Commentaires
+        // ============================================================
+        System.out.println("--- Scenario 2 : Commentaires ---");
+
+        System.out.println("1. Bob commente le post de alice...");
+        interactions.commenter(p1.getId(), bob, "Super initiative, je participe !");
+        System.out.println("   OK");
+
+        System.out.println("2. Carol commente...");
+        interactions.commenter(p1.getId(), carol, "Quelle est la date limite ?");
+        System.out.println("   OK");
+
+        System.out.println("3. Affichage des commentaires :");
+        interactions.afficherCommentaires(p1.getId());
+        System.out.println();
+
+        System.out.println("4. Tentative commentaire (compte banni)...");
+        try {
+            interactions.commenter(p1.getId(), banni, "Spam !");
+        } catch (IllegalStateException e) {
+            System.out.println("   ERREUR attendue -> " + e.getMessage());
+        }
+        System.out.println();
+
+        System.out.println("5. Tentative commentaire trop long (> 280 car.)...");
+        try {
+            interactions.commenter(p1.getId(), bob, "x".repeat(281));
+        } catch (IllegalArgumentException e) {
+            System.out.println("   ERREUR attendue -> " + e.getMessage());
+        }
+        System.out.println();
+
+        // ============================================================
+        //  SCENARIO 3 : Likes
+        // ============================================================
+        System.out.println("--- Scenario 3 : Likes ---");
+
+        System.out.println("1. Bob et Carol likent le post de alice...");
         interactions.liker(p1.getId(), bob);
         interactions.liker(p1.getId(), carol);
-        System.out.println("   Likes : " + p1.getLikes() + "  [OK]");
+        System.out.println("   Likes Post#" + p1.getId() + " : " + p1.getLikes());
         System.out.println();
 
-        System.out.println("6. Alice tente de liker son propre post...");
+        System.out.println("2. Alice tente de liker son propre post...");
         try {
             interactions.liker(p1.getId(), alice);
         } catch (IllegalStateException e) {
-            System.out.println("   ERREUR attendue -> " + e.getMessage() + "  [OK]");
+            System.out.println("   ERREUR attendue -> " + e.getMessage());
         }
         System.out.println();
 
-        System.out.println("7. Bob retire son like...");
+        System.out.println("3. Bob tente de liker deux fois...");
+        try {
+            interactions.liker(p1.getId(), bob);
+        } catch (IllegalStateException e) {
+            System.out.println("   ERREUR attendue -> " + e.getMessage());
+        }
+        System.out.println();
+
+        System.out.println("4. Bob retire son like...");
         interactions.retirerLike(p1.getId(), bob);
-        System.out.println("   Likes apres retrait : " + p1.getLikes() + "  [OK]");
+        System.out.println("   Likes apres retrait : " + p1.getLikes());
         System.out.println();
 
-        System.out.println("8. Alice epingle son post...");
+        // ============================================================
+        //  SCENARIO 4 : Epinglage
+        // ============================================================
+        System.out.println("--- Scenario 4 : Epinglage ---");
+
+        System.out.println("1. Alice epingle son post...");
         p1.epingler(alice);
-        System.out.println("   Post epingle : " + p1.isEpingle() + "  [OK]");
+        System.out.println("   Post epingle : " + p1.isEpingle());
+        System.out.println();
+
+        System.out.println("2. Bob tente d'epingler le post de alice...");
+        try {
+            p1.epingler(bob);
+        } catch (IllegalStateException e) {
+            System.out.println("   ERREUR attendue -> " + e.getMessage());
+        }
+        System.out.println();
+
+        System.out.println("3. Admin epingle le post de bob...");
+        p2.epingler(admin);
+        System.out.println("   Post#" + p2.getId() + " epingle par admin : " + p2.isEpingle());
+        System.out.println();
+
+        System.out.println("4. Affichage posts (epingles en premier) :");
+        postService.voirPosts();
         System.out.println();
 
         // ============================================================
-        //  SCENARIO 3 : Signalement et moderation
+        //  SCENARIO 5 : Signalement et moderation
         // ============================================================
-        System.out.println(">> Scenario 3 : Signalement et moderation");
-        System.out.println("-------------------------------------------");
+        System.out.println("--- Scenario 5 : Signalement et moderation ---");
 
         System.out.println("1. Bob publie un post douteux...");
         Post pDouteux = postService.creerEtPublier(
             "Contenu douteux", "Message inapproprie...", bob);
-        System.out.println("   Post cree : Post#" + pDouteux.getId() + "  [OK]");
+        System.out.println("   OK : Post#" + pDouteux.getId());
         System.out.println();
 
         System.out.println("2. Alice et Carol signalent le post...");
         interactions.signalerPost(pDouteux.getId(), alice, "Contenu inapproprie");
         interactions.signalerPost(pDouteux.getId(), carol, "Spam");
         System.out.println("   Signalements : " + pDouteux.getSignalements().size()
-            + "/" + InteractionService.SEUIL_SIGNALEMENT);
+            + " / " + InteractionService.SEUIL_SIGNALEMENT);
         System.out.println();
 
         System.out.println("3. 3e signalement -> masquage automatique...");
-        User dave = AuthService.inscrire("dave", "dave@fsegt.tn", "dave99");
-        dave.setSolde(5.0);
+        User dave = new User(7, "dave", "dave@fsegt.tn", "dave99", 5.0);
         postService.creerEtPublier("Post dave", "test", dave);
-        interactions.signalerPost(pDouteux.getId(), dave, "Fausses infos");
-        System.out.println("   Post#" + pDouteux.getId() + " masque automatiquement  [OK]");
+        interactions.signalerPost(pDouteux.getId(), dave, "Fausses informations");
+        System.out.println("   Post#" + pDouteux.getId()
+            + " masque automatiquement (seuil "
+            + InteractionService.SEUIL_SIGNALEMENT + " atteint)");
+        System.out.println("   Posts restants : " + postService.getPosts().size());
         System.out.println();
 
         System.out.println("4. Admin modere un post signale...");
@@ -154,73 +198,53 @@ public class Main {
         interactions.signalerPost(pModere.getId(), alice, "Inapproprie");
         double soldeAvant = carol.getSolde();
         postService.modererPost(pModere.getId(), admin);
-        System.out.println("   Post#" + pModere.getId() + " supprime  [OK]");
-        System.out.println("   Remboursement carol : " + carol.getSolde()
-            + " DT (avant : " + soldeAvant + " DT)  [OK]");
+        System.out.println("   Post#" + pModere.getId() + " supprime par admin");
+        System.out.println("   Remboursement carol : "
+            + String.format("%.3f", carol.getSolde())
+            + " DT (avant : " + String.format("%.3f", soldeAvant) + " DT)");
         System.out.println();
 
         // ============================================================
-        //  SCENARIO 4 : Administration
+        //  SCENARIO 6 : Tableau de bord
         // ============================================================
-        System.out.println(">> Scenario 4 : Administration");
-        System.out.println("-------------------------------");
+        System.out.println("--- Scenario 6 : Tableau de bord ---");
 
-        Session.login(admin);
-
-        System.out.println("1. Tableau de bord admin :");
-        AdminService.afficherDetails();
-        System.out.println();
-
-        System.out.println("2. Liste des membres :");
-        AdminService.voirUtilisateurs();
-        System.out.println();
-
-        System.out.println("3. Bannissement de 'pauvre'...");
-        AuthService.bannirMembre(pauvre.getId());
-        System.out.println("   Role : " + pauvre.getRole() + "  [OK]");
-        System.out.println();
-
-        System.out.println("4. Promotion de dave au role admin...");
-        AdminService.promouvoirAdmin(dave.getId());
-        System.out.println("   Role dave : " + dave.getRole() + "  [OK]");
-        System.out.println();
-
-        // ============================================================
-        //  SCENARIO 5 : Tableau de bord final
-        // ============================================================
-        System.out.println(">> Scenario 5 : Tableau de bord final");
-        System.out.println("--------------------------------------");
-
-        long   totalPublies = postService.getPosts().stream().filter(Post::isPublie).count();
-        int    totalLikes   = postService.getPosts().stream().mapToInt(Post::getLikes).sum();
+        long   totalPublies = postService.getPosts().stream()
+                                .filter(Post::isPublie).count();
+        long   totalEpingles = postService.getPosts().stream()
+                                .filter(Post::isEpingle).count();
+        int    totalLikes   = postService.getPosts().stream()
+                                .mapToInt(Post::getLikes).sum();
         double revenus      = totalPublies * PostService.FRAIS_PUBLICATION;
-        long   membresActifs = AuthService.getUsers().stream()
-            .filter(u -> !"banni".equalsIgnoreCase(u.getRole())).count();
 
-        System.out.println("  Utilisateurs inscrits : " + AuthService.getUsers().size());
-        System.out.println("  Membres actifs        : " + membresActifs);
-        System.out.println("  Posts publies         : " + totalPublies);
-        System.out.println("  Total likes           : " + totalLikes);
-        System.out.println("  Revenus publication   : "
+        System.out.println("  Posts publies   : " + totalPublies);
+        System.out.println("  Posts epingles  : " + totalEpingles);
+        System.out.println("  Total likes     : " + totalLikes);
+        System.out.println("  Revenus         : "
             + String.format("%.3f", revenus) + " DT");
         System.out.println();
 
-        System.out.println("  Posts par popularite :");
-        postService.classerParPopularite().forEach(p ->
-            System.out.println("    " + p));
+        System.out.println("  Classement par popularite :");
+        postService.classerParPopularite()
+            .forEach(p -> System.out.println("    " + p));
         System.out.println();
 
-        System.out.println("  Alertes posts sans interaction :");
+        System.out.println("  Alertes (posts sans interaction) :");
         postService.getPosts().stream()
             .filter(Post::isPublie)
-            .filter(p -> p.getLikes() == 0 && p.getCommentaires().stream()
-                .noneMatch(c -> !c.startsWith("[like:")))
+            .filter(p -> p.getLikes() == 0
+                && p.getCommentaires().stream()
+                       .noneMatch(c -> !c.startsWith("[like:")))
             .forEach(p -> System.out.println("  !! Post#" + p.getId()
                 + " [" + p.getTitre() + "] sans interaction"));
         System.out.println();
 
+        System.out.println("  Details Post#" + p1.getId() + " :");
+        interactions.afficherDetailsPost(p1.getId());
+        System.out.println();
+
         System.out.println("==============================================");
-        System.out.println("  Fin demonstration — TP1 OK                 ");
+        System.out.println("  Fin demo — InteractionService V1 OK        ");
         System.out.println("==============================================");
     }
 }
