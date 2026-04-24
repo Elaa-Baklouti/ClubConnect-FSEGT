@@ -1,3 +1,6 @@
+package com.clubconnect.models.gestionpostes;
+
+import com.clubconnect.models.authentification.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +18,7 @@ public class Post {
         this.author  = author;
     }
 
+    @Override
     public String toString() {
         return "Post#" + id + " [" + title + "] par " + author.getUsername()
              + " | likes=" + likes + " | comments=" + comments.size();

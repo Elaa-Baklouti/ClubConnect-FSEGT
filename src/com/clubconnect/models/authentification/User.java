@@ -1,28 +1,7 @@
-/**
- * ============================================================
- *  DOCUMENTATION TP3 — Approche IA assistee
- * ============================================================
- *  METHODE : debiterSolde() / crediterSolde()
- *  Prompt utilise :
- *    "Ajoute un champ solde en DT a la classe User avec
- *     debiterSolde(double montant) et crediterSolde(double montant).
- *     Valider que le montant est positif et que le solde ne devient
- *     pas negatif."
- *  Code genere par l'IA :
- *    public void debiterSolde(double montant) {
- *        if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
- *        if (solde < montant) throw new IllegalStateException("Solde insuffisant.");
- *        solde -= montant;
- *    }
- *  Corrections humaines :
- *    - Ajout constructeur avec solde initial
- *    - Arrondi 3 decimales (standard DT)
- *    - seConnecter() / seDeconnecter() sans Session (autonome)
- * ============================================================
- */
+package com.clubconnect.models.authentification;
+
 public class User {
 
-    // --- Champs prives ---
     private int id;
     private String username;
     private String email;
@@ -30,13 +9,11 @@ public class User {
     private String role;
     private double solde; // en DT
 
-    // --- Constructeur vide ---
     public User() {
         this.role  = "user";
         this.solde = 0.0;
     }
 
-    // --- Constructeur complet ---
     public User(int id, String username, String email, String password) {
         this.id       = id;
         this.username = username;
@@ -46,15 +23,10 @@ public class User {
         this.solde    = 0.0;
     }
 
-    // --- Constructeur avec solde initial ---
     public User(int id, String username, String email, String password, double soldeInitial) {
         this(id, username, email, password);
         this.solde = soldeInitial;
     }
-
-    // ============================================================
-    //  METHODES METIER
-    // ============================================================
 
     public void seConnecter() {
         if (username == null || email == null)
@@ -94,22 +66,16 @@ public class User {
         return "User#" + id + " [" + username + "] (" + role + ") | solde=" + solde + " DT";
     }
 
-    // --- Getters / Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
-
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
-
     public double getSolde() { return solde; }
     public void setSolde(double solde) { this.solde = solde; }
 }

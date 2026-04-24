@@ -1,3 +1,6 @@
+package com.clubconnect.models.evenement;
+
+import com.clubconnect.models.authentification.User;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,14 +41,13 @@ public class Event {
     }
 
     public void ajouterParticipant(User user) {
-        if (annule)
-            throw new IllegalStateException("L'événement est annulé.");
+        if (annule) throw new IllegalStateException("L'evenement est annule.");
         if (organisateur != null && organisateur.getId() == user.getId())
             throw new IllegalStateException("L'organisateur ne peut pas s'inscrire.");
         if (participants.contains(user.getUsername()))
-            throw new IllegalStateException(user.getUsername() + " est déjà inscrit.");
+            throw new IllegalStateException(user.getUsername() + " est deja inscrit.");
         if (participants.size() >= capaciteMax)
-            throw new IllegalStateException("Événement complet (" + capaciteMax + " max).");
+            throw new IllegalStateException("Evenement complet (" + capaciteMax + " max).");
         if (fraisInscription > 0) {
             if (user.getSolde() < fraisInscription)
                 throw new IllegalStateException("Solde insuffisant. Frais : " + fraisInscription + " DT.");
@@ -58,15 +60,13 @@ public class Event {
         if (!participants.contains(user.getUsername()))
             throw new IllegalStateException(user.getUsername() + " n'est pas inscrit.");
         participants.remove(user.getUsername());
-        if (fraisInscription > 0)
-            user.crediterSolde(fraisInscription);
+        if (fraisInscription > 0) user.crediterSolde(fraisInscription);
     }
 
     public void annulerEvenement(User demandeur, List<User> tousLesUsers) {
         if (organisateur == null || organisateur.getId() != demandeur.getId())
             throw new IllegalStateException("Seul l'organisateur peut annuler.");
-        if (annule)
-            throw new IllegalStateException("Déjà annulé.");
+        if (annule) throw new IllegalStateException("Deja annule.");
         if (fraisInscription > 0)
             for (User u : tousLesUsers)
                 if (participants.contains(u.getUsername()))
@@ -75,16 +75,11 @@ public class Event {
         participants.clear();
     }
 
-    public boolean estParticipant(String username) {
-        return participants.contains(username);
-    }
-
-    public int placesRestantes() {
-        return capaciteMax - participants.size();
-    }
+    public boolean estParticipant(String username) { return participants.contains(username); }
+    public int placesRestantes() { return capaciteMax - participants.size(); }
 
     public void afficherDetails() {
-        System.out.println("=== Détails Événement ===");
+        System.out.println("=== Details Evenement ===");
         System.out.println("ID             : " + id);
         System.out.println("Titre          : " + titre);
         System.out.println("Lieu           : " + lieu);
@@ -93,42 +88,32 @@ public class Event {
         System.out.println("Participants   : " + participants.size() + "/" + capaciteMax);
         System.out.println("Places restant.: " + placesRestantes());
         System.out.println("Frais          : " + fraisInscription + " DT");
-        System.out.println("Statut         : " + (annule ? "ANNULÉ" : "Actif"));
+        System.out.println("Statut         : " + (annule ? "ANNULE" : "Actif"));
     }
 
     @Override
     public String toString() {
-        return "Event#" + id + " [" + titre + "] à " + lieu
-             + " le " + date
+        return "Event#" + id + " [" + titre + "] a " + lieu + " le " + date
              + " | " + participants.size() + "/" + capaciteMax
-             + " | " + fraisInscription + " DT"
-             + (annule ? " [ANNULÉ]" : "");
+             + " | " + fraisInscription + " DT" + (annule ? " [ANNULE]" : "");
     }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-
     public String getTitre() { return titre; }
     public void setTitre(String titre) { this.titre = titre; }
-
     public String getLieu() { return lieu; }
     public void setLieu(String lieu) { this.lieu = lieu; }
-
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
-
     public User getOrganisateur() { return organisateur; }
     public void setOrganisateur(User organisateur) { this.organisateur = organisateur; }
-
     public List<String> getParticipants() { return participants; }
     public void setParticipants(List<String> participants) { this.participants = participants; }
-
     public int getCapaciteMax() { return capaciteMax; }
     public void setCapaciteMax(int capaciteMax) { this.capaciteMax = capaciteMax; }
-
     public double getFraisInscription() { return fraisInscription; }
     public void setFraisInscription(double f) { this.fraisInscription = f; }
-
     public boolean isAnnule() { return annule; }
     public void setAnnule(boolean annule) { this.annule = annule; }
 }
