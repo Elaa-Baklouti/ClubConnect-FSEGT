@@ -1,0 +1,44 @@
+@startuml
+actor Membre
+actor Admin
+participant AuthService as AS
+participant Session as S
+participant PostService as PS
+participant Post as P
+participant User as U
+participant InteractionService as IS
+participant AdminService as ADM
+
+Membre -> AS : inscrire(username, email, password)
+AS -> U : new User(id, username, email, password)
+AS --> Membre : user
+
+Membre -> AS : seConnecter(email, password)
+AS -> S : login(user)
+AS --> Membre : user connecte
+
+Membre -> PS : creerEtPublier(titre, contenu, auteur)
+PS -> U : getSolde()
+PS -> P : new Post(id, titre, contenu, auteur)
+PS -> P : publier()
+PS -> U : debiterSolde(0.500 DT)
+PS --> Membre : post publie
+
+Membre -> IS : commenter(postId, user, texte)
+IS -> P : ajouterCommentaire(user, texte)
+
+Membre -> IS : liker(postId, user)
+IS -> P : liker(user)
+
+Membre -> IS : signalerPost(postId, user, raison)
+IS -> P : signalerPost(user, raison)
+IS -> PS : getPosts().remove(post)
+
+Admin -> ADM : afficherDetails()
+ADM -> S : isAdmin()
+ADM --> Admin : tableau de bord
+
+Admin -> PS : modererPost(postId, admin)
+PS -> U : crediterSolde(0.500 DT)
+PS --> Admin : post supprime
+@enduml

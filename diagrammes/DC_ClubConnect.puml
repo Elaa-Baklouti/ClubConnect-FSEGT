@@ -1,0 +1,122 @@
+@startuml
+class User {
+    - id : int
+    - username : String
+    - email : String
+    - password : String
+    - role : String
+    - solde : double
+    + seConnecter()
+    + seDeconnecter()
+    + debiterSolde(montant : double)
+    + crediterSolde(montant : double)
+    + afficherDetails()
+}
+
+class Session {
+    - currentUser : User
+    + login(user : User)
+    + logout()
+    + isLoggedIn() : boolean
+    + isAdmin() : boolean
+    + afficherDetails()
+}
+
+class AuthService {
+    - users : List<User>
+    - nextId : int
+    + inscrire(username, email, password) : User
+    + seConnecter(email, password) : User
+    + seDeconnecter()
+    + afficherDetails()
+}
+
+class AdminService {
+    + voirUtilisateurs()
+    + supprimerMembre(membreId : int)
+    + changerRole(membreId : int, role : String)
+    + afficherDetails()
+}
+
+class Post {
+    - id : int
+    - titre : String
+    - contenu : String
+    - likes : int
+    - publie : boolean
+    - epingle : boolean
+    - datePublication : Date
+    + publier()
+    + ajouterCommentaire(user, texte)
+    + liker(user)
+    + retirerLike(user)
+    + epingler(user)
+    + desepingler(user)
+    + signalerPost(user, raison)
+    + supprimerCommentaire(index, user)
+    + afficherDetails()
+}
+
+class PostService {
+    - posts : List<Post>
+    - nextId : int
+    + FRAIS_PUBLICATION : double
+    + creerEtPublier(titre, contenu, auteur) : Post
+    + voirPosts()
+    + voirPostsPublics()
+    + supprimerPost(id, demandeur)
+    + modererPost(postId, moderateur)
+    + rechercherParTitre(motCle) : List<Post>
+    + classerParPopularite() : List<Post>
+}
+
+class InteractionService {
+    - postService : PostService
+    + SEUIL_SIGNALEMENT : int
+    + MAX_COMMENTAIRE : int
+    + commenter(postId, user, texte)
+    + liker(postId, user)
+    + retirerLike(postId, user)
+    + signalerPost(postId, user, raison)
+    + voirCommentairesPublics(postId)
+    + afficherCommentaires(postId)
+}
+
+class Event {
+    - id : int
+    - titre : String
+    - lieu : String
+    - date : String
+    - capaciteMax : int
+    - fraisInscription : double
+    - annule : boolean
+    + ajouterParticipant(user)
+    + annulerParticipation(user)
+    + annulerEvenement(demandeur, users)
+    + placesRestantes() : int
+    + afficherDetails()
+}
+
+class EventService {
+    - evenements : List<Event>
+    - nextId : int
+    + creerEvenement(titre, lieu, date, organisateur) : Event
+    + participer(eventId, user)
+    + annulerParticipation(eventId, user)
+    + annulerEvenement(eventId, demandeur, users)
+    + rechercherParLieu(lieu) : List<Event>
+    + afficherDetails()
+}
+
+AuthService   "1" o-- "0..*" User        : gere
+Session       "1" --> "0..1" User        : currentUser
+AdminService       --> AuthService       : utilise
+AdminService       --> Session           : verifie
+Post          "1" --> "1"   User         : auteur
+PostService   "1" o-- "0..*" Post        : gere
+PostService        --> User              : debiterSolde
+InteractionService "1" --> "1" PostService : utilise
+Event         "1" --> "1"   User         : organisateur
+EventService  "1" o-- "0..*" Event       : gere
+Event              --> User              : debiterSolde
+@enduml

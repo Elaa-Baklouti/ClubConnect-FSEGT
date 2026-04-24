@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+actor Visiteur
+actor Membre
+actor Admin
+
+rectangle "ClubConnect FSEGT" {
+
+    package "Module Auth" {
+        Membre --> (S inscrire)
+        Membre --> (Se connecter)
+        Membre --> (Se deconnecter)
+    }
+
+    package "Module Post" {
+        Visiteur --> (Voir posts publics)
+        Visiteur --> (Voir commentaires)
+        Membre  --> (Publier un post)
+        Membre  --> (Commenter un post)
+        Membre  --> (Liker un post)
+        Membre  --> (Retirer son like)
+        Membre  --> (Epingler un post)
+        Membre  --> (Signaler un post)
+        Membre  --> (Supprimer son post)
+        Admin   --> (Moderer un post signale)
+        Admin   --> (Supprimer tout post)
+    }
+
+    package "Module Event" {
+        Membre --> (Creer un evenement)
+        Membre --> (S inscrire a un evenement)
+        Membre --> (Annuler sa participation)
+        Membre --> (Rechercher un evenement)
+        Membre --> (Annuler son evenement)
+    }
+
+    package "Module Admin" {
+        Admin --> (Voir tous les membres)
+        Admin --> (Supprimer un membre)
+        Admin --> (Changer le role d un membre)
+        Admin --> (Voir tableau de bord)
+    }
+}
+
+Membre --|> Visiteur
+Admin  --|> Membre
+@enduml
