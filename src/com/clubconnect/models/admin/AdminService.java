@@ -37,11 +37,10 @@ public class AdminService {
     public static void changerRole(int membreId, String nouveauRole) {
         verifierAdmin();
         if (!"user".equals(nouveauRole) && !"admin".equals(nouveauRole))
-            throw new IllegalArgumentException("Role invalide. Valeurs acceptees : 'user', 'admin'.");
+            throw new IllegalArgumentException("Role invalide.");
         User cible = trouverMembre(membreId);
         if ("user".equals(nouveauRole) && "admin".equals(cible.getRole())) {
-            long nbAdmins = AuthService.users.stream()
-                .filter(u -> "admin".equals(u.getRole())).count();
+            long nbAdmins = AuthService.users.stream().filter(u -> "admin".equals(u.getRole())).count();
             if (nbAdmins <= 1)
                 throw new IllegalStateException("Impossible : ce membre est le dernier administrateur.");
         }

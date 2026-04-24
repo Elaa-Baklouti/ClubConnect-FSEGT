@@ -9,18 +9,11 @@ public class User {
     private String role;
     private double solde; // en DT
 
-    public User() {
-        this.role  = "user";
-        this.solde = 0.0;
-    }
+    public User() { this.role = "user"; this.solde = 0.0; }
 
     public User(int id, String username, String email, String password) {
-        this.id       = id;
-        this.username = username;
-        this.email    = email;
-        this.password = password;
-        this.role     = "user";
-        this.solde    = 0.0;
+        this.id = id; this.username = username; this.email = email;
+        this.password = password; this.role = "user"; this.solde = 0.0;
     }
 
     public User(int id, String username, String email, String password, double soldeInitial) {
@@ -29,26 +22,20 @@ public class User {
     }
 
     public void seConnecter() {
-        if (username == null || email == null)
-            throw new IllegalStateException("Compte invalide.");
+        if (username == null || email == null) throw new IllegalStateException("Compte invalide.");
         System.out.println(username + " connecte.");
     }
 
-    public void seDeconnecter() {
-        System.out.println(username + " deconnecte.");
-    }
+    public void seDeconnecter() { System.out.println(username + " deconnecte."); }
 
     public void debiterSolde(double montant) {
-        if (montant <= 0)
-            throw new IllegalArgumentException("Montant invalide.");
-        if (solde < montant)
-            throw new IllegalStateException("Solde insuffisant : " + solde + " DT.");
+        if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
+        if (solde < montant) throw new IllegalStateException("Solde insuffisant : " + solde + " DT.");
         solde = Math.round((solde - montant) * 1000.0) / 1000.0;
     }
 
     public void crediterSolde(double montant) {
-        if (montant <= 0)
-            throw new IllegalArgumentException("Montant invalide.");
+        if (montant <= 0) throw new IllegalArgumentException("Montant invalide.");
         solde = Math.round((solde + montant) * 1000.0) / 1000.0;
     }
 

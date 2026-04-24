@@ -14,8 +14,7 @@ public class Session {
     }
 
     public static void afficherDetails() {
-        if (currentUser == null)
-            System.out.println("=== Session === Aucune session active.");
+        if (currentUser == null) System.out.println("=== Session === Aucune session active.");
         else {
             System.out.println("=== Session active ===");
             System.out.println("Utilisateur : " + currentUser.getUsername());
