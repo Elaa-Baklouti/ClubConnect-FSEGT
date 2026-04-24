@@ -1,5 +1,6 @@
-package com.clubconnect.models.authentification;
+package com.clubconnect.authentification;
 
+import com.clubconnect.models.User;
 import java.util.ArrayList;
 import java.util.List;
 

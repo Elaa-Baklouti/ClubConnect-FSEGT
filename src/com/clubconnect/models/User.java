@@ -1,4 +1,4 @@
-package com.clubconnect.models.authentification;
+package com.clubconnect.models;
 
 public class User {
 
