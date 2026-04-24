@@ -2,7 +2,7 @@ package com.clubconnect.models.authentification;
 
 public class Session {
 
-    static User currentUser;
+    public static User currentUser;
 
     public Session() { }
 

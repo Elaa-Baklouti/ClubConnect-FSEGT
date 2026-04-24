@@ -5,8 +5,8 @@ import java.util.List;
 
 public class AuthService {
 
-    static List<User> users = new ArrayList<>();
-    static int nextId = 1;
+    public static List<User> users = new ArrayList<>();
+    public static int nextId = 1;
 
     public AuthService() { }
 
