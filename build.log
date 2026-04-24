@@ -1,0 +1,111 @@
+==============================================
+  ClubConnect FSEGT — Demonstration Finale   
+==============================================
+
+>> Scenario 1 : Inscription et connexion
+------------------------------------------
+1. Inscription de alice...  [OK]
+  ID           : 1
+  Username     : alice
+  Email        : alice@fsegt.tn
+  Role         : user
+  Solde        : 10,000 DT
+  Nb connexions: 0
+  Derniere cnx : jamais
+
+2. Connexion de alice...
+  Session : alice | role=user | depuis=24/04/2026 04:02:45
+   Nb connexions : 1  [OK]
+
+3. Tentative mauvais mot de passe...
+   ERREUR attendue -> Email ou mot de passe incorrect.  [OK]
+
+4. Deconnexion de alice...
+   Session active : false  [OK]
+
+>> Scenario 2 : Publication et interactions
+--------------------------------------------
+1. Alice publie un post (frais : 0.5 DT)...
+   Post publie : Hackathon FSEGT 2026  [OK]
+   Solde alice : 9,500 DT
+
+2. Bob publie un post...
+   Post publie : Atelier Java Debutants  [OK]
+
+3. Carol tente de publier (solde insuffisant)...
+   ERREUR attendue -> Solde insuffisant pour publier. Frais : 0.5 DT. Solde actuel : 0.2 DT.  [OK]
+
+4. Bob et Carol commentent le post de alice...
+   2 commentaires ajoutes  [OK]
+
+5. Likes sur Post#1...
+   Likes : 2  [OK]
+
+6. Alice tente de liker son propre post...
+   ERREUR attendue -> L'auteur ne peut pas liker son propre post.  [OK]
+
+7. Bob retire son like...
+   Likes apres retrait : 1  [OK]
+
+8. Alice epingle son post...
+   Post epingle : true  [OK]
+
+>> Scenario 3 : Signalement et moderation
+-------------------------------------------
+1. Bob publie un post douteux...
+   Post cree : Post#3  [OK]
+
+2. Alice et Carol signalent le post...
+   Signalements : 2/3
+
+3. 3e signalement -> masquage automatique...
+   Post#3 masque automatiquement  [OK]
+
+4. Admin modere un post signale...
+   Post#5 supprime  [OK]
+   Remboursement carol : 8.0 DT (avant : 7.5 DT)  [OK]
+
+>> Scenario 4 : Administration
+-------------------------------
+1. Tableau de bord admin :
+  Admin    : admin
+  Total    : 5 | Actifs: 5 | Bannis: 0
+
+2. Liste des membres :
+  +--------------------------------------------------+
+  | MEMBRES                                          |
+  +--------------------------------------------------+
+  | alice        | alice@fsegt.tn       | user   |    9,500 DT |
+  | bob          | bob@fsegt.tn         | user   |    4,000 DT |
+  | carol        | carol@fsegt.tn       | user   |    8,000 DT |
+  | pauvre       | pauvre@fsegt.tn      | user   |    0,200 DT |
+  | dave         | dave@fsegt.tn        | user   |    4,500 DT |
+  +--------------------------------------------------+
+  Total: 5 | Bannis: 0 | Solde total: 26,200 DT
+
+3. Bannissement de 'pauvre'...
+   Role : banni  [OK]
+
+4. Promotion de dave au role admin...
+   Role dave : admin  [OK]
+
+>> Scenario 5 : Tableau de bord final
+--------------------------------------
+  Utilisateurs inscrits : 5
+  Membres actifs        : 4
+  Posts publies         : 3
+  Total likes           : 1
+  Revenus publication   : 1,500 DT
+
+  Posts par popularite :
+    Post#1 [EPINGLE] [Hackathon FSEGT 2026] par alice | likes=1 | commentaires=2 | publie
+    Post#2 [Atelier Java Debutants] par bob | likes=0 | commentaires=0 | publie
+    Post#4 [Post dave] par dave | likes=0 | commentaires=0 | publie
+
+  Alertes posts sans interaction :
+  !! Post#2 [Atelier Java Debutants] sans interaction
+  !! Post#4 [Post dave] sans interaction
+
+==============================================
+  Fin demonstration — TP1 OK                 
+==============================================
