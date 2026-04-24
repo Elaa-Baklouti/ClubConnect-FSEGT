@@ -157,6 +157,35 @@ public class Main {
         System.out.println("--- Posts par popularite ---");
         postService.classerParPopularite().forEach(System.out::println);
 
+        // ============================================================
+        // Scenario 5 : Visiteur — lecture seule sans connexion
+        // ============================================================
+        System.out.println("Scenario 5 : Visiteur (sans connexion)");
+        System.out.println("---------------------------------------");
+
+        System.out.println("1. Visiteur consulte les posts publics...");
+        postService.voirPostsPublics();
+        System.out.println();
+
+        System.out.println("2. Visiteur consulte les commentaires du Post#" + p1.getId() + "...");
+        interactions.voirCommentairesPublics(p1.getId());
+        System.out.println();
+
+        System.out.println("3. Visiteur tente de liker (non autorise)...");
+        try {
+            interactions.liker(p1.getId(), null);
+        } catch (IllegalStateException e) {
+            System.out.println("   ERREUR attendue : " + e.getMessage());
+        }
+        System.out.println();
+
+        System.out.println("4. Visiteur tente de commenter (non autorise)...");
+        try {
+            interactions.commenter(p1.getId(), null, "test");
+        } catch (IllegalStateException e) {
+            System.out.println("   ERREUR attendue : " + e.getMessage());
+        }
+
         System.out.println("\n=== Fin demonstration ===");
     }
 }

@@ -68,6 +68,27 @@ public class InteractionService {
     //  METHODES METIER
     // ============================================================
 
+    /**
+     * VISITEUR : Voir les commentaires d'un post sans etre connecte.
+     * Acces lecture seule.
+     */
+    public void voirCommentairesPublics(int postId) {
+        Post post = postService.trouverParId(postId);
+        if (post == null)
+            throw new IllegalArgumentException("Post#" + postId + " introuvable.");
+        if (!post.isPublie())
+            throw new IllegalStateException("Ce post n'est pas accessible.");
+        List<String> visibles = post.getCommentaires().stream()
+                .filter(c -> !c.startsWith("[like:"))
+                .collect(Collectors.toList());
+        System.out.println("=== Commentaires Post#" + postId
+                + " (" + visibles.size() + ") ===");
+        if (visibles.isEmpty())
+            System.out.println("  Aucun commentaire.");
+        else
+            visibles.forEach(c -> System.out.println("  - " + c));
+    }
+
     /** CF-10 : Commenter un post. */
     public void commenter(int postId, User utilisateur, String texte) {
         validerUtilisateur(utilisateur, "commenter");

@@ -102,6 +102,21 @@ public class PostService {
         return post;
     }
 
+    /**
+     * VISITEUR : Voir les posts publics sans etre connecte.
+     * Acces lecture seule — epingles en premier.
+     */
+    public void voirPostsPublics() {
+        List<Post> publies = posts.stream().filter(Post::isPublie).collect(Collectors.toList());
+        if (publies.isEmpty()) {
+            System.out.println("Aucun post disponible.");
+        } else {
+            System.out.println("=== Posts publics (" + publies.size() + ") ===");
+            publies.stream().filter(Post::isEpingle).forEach(System.out::println);
+            publies.stream().filter(p -> !p.isEpingle()).forEach(System.out::println);
+        }
+    }
+
     /** CF-5 : Afficher tous les posts publies (epingles en premier). */
     public void voirPosts() {
         List<Post> publies = posts.stream().filter(Post::isPublie).collect(Collectors.toList());
