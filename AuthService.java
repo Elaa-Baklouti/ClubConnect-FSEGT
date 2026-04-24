@@ -3,38 +3,57 @@ import java.util.List;
 
 /**
  * ============================================================
- *  DOCUMENTATION TP1 — Approche hybride
+ *  DOCUMENTATION TP3 — Approche IA assistée
  * ============================================================
  *
- *  ÉTAPE 1 — Squelette AGL :
- *    Service d'authentification — inscription, connexion,
- *    déconnexion des membres.
- *    Champs privés → constructeur vide → méthodes métier
- *    (signatures) → getters/setters
- *    Nommage français : inscrire(), seConnecter(),
- *    seDeconnecter(), afficherDetails()
+ *  MÉTHODE : inscrire()
+ *  --------------------------------
+ *  Prompt utilisé :
+ *    "Implémente inscrire(username, email, password) dans
+ *     AuthService. Valide que le username n'est pas vide, que
+ *     l'email contient '@' et '.', que le mot de passe fait
+ *     au moins 6 caractères, et que l'email n'est pas déjà
+ *     utilisé. Crée et retourne le User."
  *
- *  ÉTAPE 2 — Implémentation IA assistée :
- *    Prompt utilisé :
- *      "Implémente un AuthService Java avec une liste statique
- *       d'utilisateurs. Méthodes : inscription(username, email,
- *       password) qui valide les champs et crée un User, et
- *       login(email, password) qui cherche l'utilisateur et
- *       ouvre la session. Lancer des exceptions si les règles
- *       sont violées."
+ *  Code généré par l'IA :
+ *    static User inscrire(String u, String e, String p) {
+ *        if (u.isBlank()) throw new IllegalArgumentException("...");
+ *        if (!e.contains("@")) throw new IllegalArgumentException("...");
+ *        if (p.length() < 6) throw new IllegalArgumentException("...");
+ *        User user = new User(nextId++, u, e, p);
+ *        users.add(user);
+ *        return user;
+ *    }
  *
- *    Code généré par l'IA :
- *      static User inscription(String u, String e, String p) {
- *          // validation + new User + users.add()
- *      }
- *      static User login(String email, String password) {
- *          // recherche + Session.login()
- *      }
+ *  Corrections humaines :
+ *    - Vérification unicité email (doublon interdit)
+ *    - Validation email : présence de '.' en plus de '@'
+ *    - Extraction trouverParEmail() utilitaire privé
+ * ============================================================
  *
- *    Corrections humaines :
- *      - Vérification unicité email
- *      - Extraction trouverParEmail() utilitaire privé
- *      - Ajout afficherDetails()
+ *  MÉTHODE : seConnecter()
+ *  --------------------------------
+ *  Prompt utilisé :
+ *    "Implémente seConnecter(email, password) dans AuthService.
+ *     Cherche l'utilisateur par email, compare le mot de passe,
+ *     ouvre la session via Session.login() et retourne le User.
+ *     Lance IllegalStateException si les identifiants sont
+ *     incorrects."
+ *
+ *  Code généré par l'IA :
+ *    static User seConnecter(String email, String password) {
+ *        for (User u : users)
+ *            if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
+ *                Session.login(u);
+ *                return u;
+ *            }
+ *        throw new IllegalStateException("Identifiants incorrects.");
+ *    }
+ *
+ *  Corrections humaines :
+ *    - Comparaison email insensible à la casse (equalsIgnoreCase)
+ *    - Séparation recherche et vérification mot de passe
+ *      pour message d'erreur plus précis
  * ============================================================
  */
 public class AuthService {
@@ -46,53 +65,55 @@ public class AuthService {
     // --- Constructeur vide ---
     public AuthService() { }
 
-    // --- Méthodes métier ---
+    // ============================================================
+    //  MÉTHODES MÉTIER — Logique réelle
+    // ============================================================
 
-    /** CF-1 : Inscrire un nouveau membre */
+    /**
+     * CF-1 : Inscrire un nouveau membre.
+     * Valide username, email (unicité + format) et mot de passe.
+     */
     public static User inscrire(String username, String email, String password) {
         if (username == null || username.isBlank())
-            throw new IllegalArgumentException("Username obligatoire.");
+            throw new IllegalArgumentException("Le username est obligatoire.");
         if (email == null || !email.contains("@") || !email.contains("."))
             throw new IllegalArgumentException("Email invalide.");
         if (password == null || password.length() < 6)
-            throw new IllegalArgumentException("Mot de passe trop court (6 min).");
+            throw new IllegalArgumentException("Mot de passe trop court (6 caractères min).");
         if (trouverParEmail(email) != null)
-            throw new IllegalStateException("Email deja utilise.");
+            throw new IllegalStateException("Un compte existe déjà avec cet email.");
 
         User user = new User(nextId++, username, email, password);
         users.add(user);
-        System.out.println("Inscription OK : " + username);
         return user;
     }
 
-    /** CF-2 : Connecter un membre */
+    /**
+     * CF-2 : Connecter un membre existant.
+     * Recherche par email (insensible à la casse) + vérification mot de passe.
+     */
     public static User seConnecter(String email, String password) {
         User user = trouverParEmail(email);
         if (user == null || !user.getPassword().equals(password))
             throw new IllegalStateException("Email ou mot de passe incorrect.");
         Session.login(user);
-        System.out.println("Connecte : " + user.getUsername());
         return user;
     }
 
-    /** CF-2b : Déconnecter le membre courant */
+    /**
+     * CF-2b : Déconnecter le membre courant.
+     */
     public static void seDeconnecter() {
         Session.logout();
-        System.out.println("Deconnexion effectuee.");
     }
 
-    /** Afficher tous les membres */
+    /**
+     * Afficher tous les membres inscrits.
+     */
     public static void afficherDetails() {
         System.out.println("=== Membres inscrits (" + users.size() + ") ===");
         for (User u : users)
             System.out.println("  - " + u);
-    }
-
-    // --- Utilitaire privé ---
-    private static User trouverParEmail(String email) {
-        for (User u : users)
-            if (u.getEmail().equalsIgnoreCase(email)) return u;
-        return null;
     }
 
     // --- toString ---
@@ -108,7 +129,14 @@ public class AuthService {
     public static int getNextId() { return nextId; }
     public static void setNextId(int id) { nextId = id; }
 
-    // --- Alias compatibilité ancien code ---
+    // --- Utilitaire privé ---
+    private static User trouverParEmail(String email) {
+        for (User u : users)
+            if (u.getEmail().equalsIgnoreCase(email)) return u;
+        return null;
+    }
+
+    // --- Alias compatibilité ---
     public static User inscription(String username, String email, String password) {
         return inscrire(username, email, password);
     }
